@@ -435,9 +435,15 @@ export default function RoadGuard() {
                       )}
                     </div>
                   </div>
-                ))}
-              </div>
+                ))
+              ) : (
+                <div className="text-center py-12 border border-dashed border-[#2B2653]/10 rounded-xl">
+                  <Briefcase className="h-8 w-8 mx-auto text-[#2B2653]/20" />
+                  <p className="mt-2 text-sm text-[#5A5A5A]">No work orders found in this scope.</p>
+                </div>
+              )}
             </div>
+          </section>
 
           </div>
 
@@ -657,8 +663,8 @@ export default function RoadGuard() {
                   Department: <strong className="text-white">{acc.department}</strong>
                 </p>
               </div>
-            ))}
-          </div>
+            )}
+          </section>
         </div>
       )}
 

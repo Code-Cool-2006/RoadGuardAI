@@ -132,6 +132,11 @@ export function AppProvider({ children }) {
   const [complaints, setComplaints] = useState(initialComplaints);
   const [workOrders, setWorkOrders] = useState(initialWorkOrders);
   const [notices, setNotices] = useState(initialNotices);
+  const [accounts, setAccounts] = useState([
+    { id: 1, name: 'Alex Rivera', email: 'alex@road.gov', role: 'super_dept', department: 'Road' },
+    { id: 2, name: 'Sarah Waters', email: 'sarah@water.gov', role: 'dept_admin', department: 'Water' },
+    { id: 3, name: 'Mark Gas', email: 'mark@gas.gov', role: 'dept_admin', department: 'Gas' },
+  ]);
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', theme === 'dark');
@@ -201,6 +206,7 @@ export function AppProvider({ children }) {
       comments: [],
       image: payload.image,
       confidence: 90,
+      assignedStaff: '',
     };
     setComplaints((current) => [newComplaint, ...current]);
   };
@@ -299,6 +305,12 @@ export function AppProvider({ children }) {
     return complaints.filter((item) => item.department.toLowerCase() === user.department.toLowerCase());
   };
 
+  const assignComplaintStaff = (id, staffName) => {
+    setComplaints((current) =>
+      current.map((complaint) => (complaint.id === id ? { ...complaint, assignedStaff: staffName } : complaint))
+    );
+  };
+
   const getVisibleWorkOrders = () => {
     if (!user) return [];
     if (user.role === 'super_admin') return workOrders;
@@ -310,6 +322,57 @@ export function AppProvider({ children }) {
     if (user.role === 'super_admin') return notices;
     // Super Dept and Dept Admin see notices from their department
     return notices.filter((item) => item.department.toLowerCase() === user.department.toLowerCase());
+  const createWorkOrder = (payload) => {
+    const nextOrder = {
+      id: Date.now(),
+      title: payload.title,
+      department: payload.department,
+      schedule: payload.schedule,
+      engineers: payload.engineers,
+      route: payload.route,
+      status: 'yet_to_start',
+    };
+    setWorkOrders((current) => [nextOrder, ...current]);
+    setNotices((current) => [
+      {
+        id: Date.now() + 1,
+        title: `Work order published for ${payload.department}`,
+        department: payload.department,
+        detail: `${payload.title} is now visible to the public and affected partners.`,
+      },
+      ...current,
+    ]);
+  };
+
+  const updateWorkOrderStatus = (id, status) => {
+    setWorkOrders((current) =>
+      current.map((order) => (order.id === id ? { ...order, status } : order))
+    );
+  };
+
+  const publishNotice = (payload) => {
+    setNotices((current) => [
+      {
+        id: Date.now(),
+        title: payload.title,
+        department: payload.department,
+        detail: payload.detail,
+      },
+      ...current,
+    ]);
+  };
+
+  const createAccount = (payload) => {
+    setAccounts((current) => [
+      ...current,
+      {
+        id: Date.now(),
+        name: payload.name,
+        email: payload.email,
+        role: payload.role,
+        department: payload.department,
+      },
+    ]);
   };
 
   const value = useMemo(
@@ -326,6 +389,7 @@ export function AppProvider({ children }) {
       complaints,
       workOrders,
       notices,
+      accounts,
       submitComplaint,
       addComment,
       toggleLike,
@@ -333,6 +397,7 @@ export function AppProvider({ children }) {
       assignStaffToComplaint,
       updateWorkOrderStatus,
       createWorkOrder,
+      updateWorkOrderStatus,
       publishNotice,
       getVisibleComplaints,
       getVisibleWorkOrders,
