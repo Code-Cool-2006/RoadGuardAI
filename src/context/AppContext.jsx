@@ -322,57 +322,6 @@ export function AppProvider({ children }) {
     if (user.role === 'super_admin') return notices;
     // Super Dept and Dept Admin see notices from their department
     return notices.filter((item) => item.department.toLowerCase() === user.department.toLowerCase());
-  const createWorkOrder = (payload) => {
-    const nextOrder = {
-      id: Date.now(),
-      title: payload.title,
-      department: payload.department,
-      schedule: payload.schedule,
-      engineers: payload.engineers,
-      route: payload.route,
-      status: 'yet_to_start',
-    };
-    setWorkOrders((current) => [nextOrder, ...current]);
-    setNotices((current) => [
-      {
-        id: Date.now() + 1,
-        title: `Work order published for ${payload.department}`,
-        department: payload.department,
-        detail: `${payload.title} is now visible to the public and affected partners.`,
-      },
-      ...current,
-    ]);
-  };
-
-  const updateWorkOrderStatus = (id, status) => {
-    setWorkOrders((current) =>
-      current.map((order) => (order.id === id ? { ...order, status } : order))
-    );
-  };
-
-  const publishNotice = (payload) => {
-    setNotices((current) => [
-      {
-        id: Date.now(),
-        title: payload.title,
-        department: payload.department,
-        detail: payload.detail,
-      },
-      ...current,
-    ]);
-  };
-
-  const createAccount = (payload) => {
-    setAccounts((current) => [
-      ...current,
-      {
-        id: Date.now(),
-        name: payload.name,
-        email: payload.email,
-        role: payload.role,
-        department: payload.department,
-      },
-    ]);
   };
 
   const value = useMemo(
@@ -397,7 +346,6 @@ export function AppProvider({ children }) {
       assignStaffToComplaint,
       updateWorkOrderStatus,
       createWorkOrder,
-      updateWorkOrderStatus,
       publishNotice,
       getVisibleComplaints,
       getVisibleWorkOrders,
