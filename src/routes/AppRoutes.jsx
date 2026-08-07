@@ -3,7 +3,6 @@ import Layout from '@/components/layout/Layout';
 import Home from '@/pages/Home';
 import ReportHazard from '@/pages/ReportHazard';
 import Incidents from '@/pages/Incidents';
-import SafetyAssistant from '@/pages/SafetyAssistant';
 import Landing from '@/pages/Landing';
 import Login from '@/pages/Login';
 import NotFound from '@/pages/NotFound';
@@ -37,10 +36,6 @@ export const router = createBrowserRouter([
       {
         path: 'incidents',
         element: <Incidents />,
-      },
-      {
-        path: 'assistant',
-        element: <SafetyAssistant />,
       },
       {
         path: '*',
