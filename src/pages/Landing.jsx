@@ -1,4 +1,4 @@
-import { ArrowRight, BadgeCheck, Building2, CheckCircle2, ShieldCheck, Sparkles } from 'lucide-react';
+import { CheckCircle2, ShieldCheck, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export default function Landing() {
@@ -15,7 +15,6 @@ export default function Landing() {
           </div>
           <div className="flex items-center gap-3">
             <Link to="/login" className="rounded-full border border-white/10 px-4 py-2 text-sm text-slate-200 transition hover:bg-white/10">Sign in</Link>
-            <Link to="/lawaxis" className="rounded-full bg-indigo-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-400">View LawAxis</Link>
           </div>
         </header>
 
@@ -31,7 +30,6 @@ export default function Landing() {
           </p>
           <div className="mt-10 flex flex-wrap justify-center gap-4">
             <Link to="/login" className="rounded-full bg-indigo-500 px-6 py-3 font-semibold text-white transition hover:bg-indigo-400">Enter the platform →</Link>
-            <Link to="/lawaxis" className="rounded-full border border-white/10 bg-white/10 px-6 py-3 font-semibold text-slate-100 transition hover:bg-white/20">See LawAxis demo</Link>
           </div>
           <div className="mt-12 grid w-full max-w-5xl gap-4 md:grid-cols-3">
             {[

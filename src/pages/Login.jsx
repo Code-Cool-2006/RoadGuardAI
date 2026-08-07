@@ -6,6 +6,7 @@ import { useAppContext } from '@/context/AppContext';
 const roles = [
   { id: 'citizen', label: 'Citizen', description: 'File reports and monitor progress', accent: 'from-emerald-500/20 to-emerald-400/10' },
   { id: 'dept_admin', label: 'Department Admin', description: 'Coordinate department workflows', accent: 'from-indigo-500/20 to-indigo-400/10' },
+  { id: 'super_dept', label: 'Super Dept Account', description: 'Manage your department and publish notices', accent: 'from-cyan-500/20 to-sky-400/10' },
   { id: 'super_admin', label: 'Super Admin', description: 'Unlock city-wide oversight', accent: 'from-fuchsia-500/20 to-fuchsia-400/10' },
 ];
 
@@ -20,8 +21,8 @@ export default function Login() {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    const roleKey = selectedRole === 'dept_admin' ? 'dept_admin' : selectedRole === 'super_admin' ? 'super_admin' : 'citizen';
-    const resolvedDepartment = selectedRole === 'dept_admin' ? department : 'Public';
+    const roleKey = selectedRole;
+    const resolvedDepartment = selectedRole === 'dept_admin' || selectedRole === 'super_dept' ? department : selectedRole === 'super_admin' ? 'All Departments' : 'Public';
     login(roleKey, resolvedDepartment, name || 'Operator', email);
     navigate('/dashboard/overview');
   };
@@ -83,7 +84,7 @@ export default function Login() {
                 <input value={name} onChange={(e) => setName(e.target.value)} className="rounded-xl border border-slate-800 bg-slate-900/70 px-4 py-3 text-sm text-white" placeholder="Full name" required />
                 <input value={email} onChange={(e) => setEmail(e.target.value)} className="rounded-xl border border-slate-800 bg-slate-900/70 px-4 py-3 text-sm text-white" placeholder="Email" type="email" required />
               </div>
-              {selectedRole === 'dept_admin' && (
+              {(selectedRole === 'dept_admin' || selectedRole === 'super_dept') && (
                 <select value={department} onChange={(e) => setDepartment(e.target.value)} className="w-full rounded-xl border border-slate-800 bg-slate-900/70 px-4 py-3 text-sm text-white">
                   <option value="Road">Road</option>
                   <option value="Water">Water</option>

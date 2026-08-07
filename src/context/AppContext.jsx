@@ -80,6 +80,21 @@ const initialNotices = [
   },
 ];
 
+const departments = ['Road', 'Water', 'Gas', 'Electricity'];
+
+const departmentStaff = {
+  Road: ['Alex Rivera', 'Lina Khan'],
+  Water: ['Tia Brooks', 'Omar Nunez'],
+  Gas: ['Sam Patel', 'Mia Chen'],
+  Electricity: ['Jules Adams', 'Nina Shah'],
+};
+
+const initialUsers = [
+  { id: 1, name: 'City Control', email: 'super@roadguard.ai', role: 'super_admin', department: 'All Departments' },
+  { id: 2, name: 'Road Super Dept', email: 'road-dept@roadguard.ai', role: 'super_dept', department: 'Road' },
+  { id: 3, name: 'Water Super Dept', email: 'water-dept@roadguard.ai', role: 'super_dept', department: 'Water' },
+];
+
 export function AppProvider({ children }) {
   const [theme, setTheme] = useState(() => {
     if (typeof window === 'undefined') {
@@ -88,6 +103,7 @@ export function AppProvider({ children }) {
     return localStorage.getItem('roadguard-theme') || 'dark';
   });
   const [user, setUser] = useState(null);
+  const [users, setUsers] = useState(initialUsers);
   const [complaints, setComplaints] = useState(initialComplaints);
   const [workOrders, setWorkOrders] = useState(initialWorkOrders);
   const [notices, setNotices] = useState(initialNotices);
@@ -104,6 +120,36 @@ export function AppProvider({ children }) {
   };
 
   const logout = () => setUser(null);
+
+  const hasDepartmentAccess = (department) => {
+    if (!user) return false;
+    if (user.role === 'super_admin') return true;
+    if (user.role === 'super_dept' || user.role === 'dept_admin') return user.department === department;
+    return false;
+  };
+
+  const createAccount = ({ name, email, password, role, department }) => {
+    if (!user) return null;
+    if (user.role === 'super_admin' && role !== 'super_dept') {
+      return null;
+    }
+    if (user.role === 'super_dept' && role !== 'dept_admin') {
+      return null;
+    }
+    if (user.role !== 'super_admin' && user.role !== 'super_dept') {
+      return null;
+    }
+
+    const newUser = {
+      id: Date.now(),
+      name,
+      email,
+      role,
+      department: role === 'super_admin' ? 'All Departments' : department,
+    };
+    setUsers((current) => [newUser, ...current]);
+    return newUser;
+  };
 
   const submitComplaint = (payload) => {
     const newComplaint = {
@@ -139,10 +185,24 @@ export function AppProvider({ children }) {
   };
 
   const updateComplaintStatus = (id, status) => {
+    if (!user || (user.role !== 'super_dept' && user.role !== 'dept_admin')) return null;
     setComplaints((current) => current.map((complaint) => (complaint.id === id ? { ...complaint, status } : complaint)));
   };
 
+  const assignComplaint = (id, assigned_to) => {
+    if (!user || (user.role !== 'super_dept' && user.role !== 'dept_admin')) return null;
+    setComplaints((current) =>
+      current.map((complaint) => (complaint.id === id ? { ...complaint, assigned_to } : complaint))
+    );
+  };
+
+  const updateWorkOrderStatus = (id, status) => {
+    if (!user || (user.role !== 'super_dept' && user.role !== 'dept_admin')) return null;
+    setWorkOrders((current) => current.map((order) => (order.id === id ? { ...order, status } : order)));
+  };
+
   const createWorkOrder = (payload) => {
+    if (!user || (user.role !== 'super_dept' && user.role !== 'dept_admin')) return null;
     const nextOrder = {
       id: Date.now(),
       title: payload.title,
@@ -150,7 +210,7 @@ export function AppProvider({ children }) {
       schedule: payload.schedule,
       engineers: payload.engineers,
       route: payload.route,
-      status: 'Planned',
+      status: 'yet_to_start',
     };
     setWorkOrders((current) => [nextOrder, ...current]);
     setNotices((current) => [
@@ -162,18 +222,40 @@ export function AppProvider({ children }) {
       },
       ...current,
     ]);
+    return nextOrder;
   };
 
   const publishNotice = (payload) => {
+    if (user?.role !== 'super_dept') return;
     setNotices((current) => [
       {
         id: Date.now(),
         title: payload.title,
-        department: payload.department,
+        department: user.department,
         detail: payload.detail,
+        published_by: user?.name || 'System',
       },
       ...current,
     ]);
+  };
+
+  const getVisibleComplaints = () => {
+    if (!user) return [];
+    if (user.role === 'super_admin' || user.role === 'citizen') return complaints;
+    return complaints.filter((item) => item.department === user.department);
+  };
+
+  const getVisibleWorkOrders = () => {
+    if (!user) return [];
+    if (user.role === 'super_admin' || user.role === 'citizen') return workOrders;
+    return workOrders.filter((item) => item.department === user.department);
+  };
+
+  const getVisibleNotices = () => {
+    if (!user) return [];
+    if (user.role === 'super_admin' || user.role === 'citizen') return notices;
+    if (user.role === 'super_dept' || user.role === 'dept_admin') return notices.filter((item) => item.department === user.department);
+    return notices;
   };
 
   const value = useMemo(
@@ -181,8 +263,13 @@ export function AppProvider({ children }) {
       theme,
       setTheme,
       user,
+      users,
+      departments,
+      departmentStaff,
       login,
       logout,
+      hasDepartmentAccess,
+      createAccount,
       complaints,
       workOrders,
       notices,
@@ -190,10 +277,15 @@ export function AppProvider({ children }) {
       addComment,
       toggleLike,
       updateComplaintStatus,
+      assignComplaint,
+      updateWorkOrderStatus,
       createWorkOrder,
       publishNotice,
+      getVisibleComplaints,
+      getVisibleWorkOrders,
+      getVisibleNotices,
     }),
-    [theme, user, complaints, workOrders, notices]
+    [theme, user, users, complaints, workOrders, notices]
   );
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

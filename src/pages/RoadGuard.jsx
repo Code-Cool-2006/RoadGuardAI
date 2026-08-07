@@ -8,15 +8,27 @@ const departmentOptions = ['Road', 'Water', 'Gas', 'Electricity'];
 const statusOptions = ['Submitted', 'Under Review', 'Accepted', 'In Progress', 'Resolved', 'Rejected'];
 
 export default function RoadGuard() {
-  const { user, complaints, workOrders, notices, submitComplaint, updateComplaintStatus, createWorkOrder, publishNotice } = useAppContext();
+  const { user, users, departments, departmentStaff, submitComplaint, createAccount, updateComplaintStatus, assignComplaint, updateWorkOrderStatus, createWorkOrder, publishNotice, getVisibleComplaints, getVisibleWorkOrders, getVisibleNotices } = useAppContext();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview');
-  const [selectedDepartment, setSelectedDepartment] = useState('Road');
+  const [selectedDepartment, setSelectedDepartment] = useState(user?.role === 'super_admin' || user?.role === 'citizen' ? 'All' : user?.department || 'Road');
   const [complaintForm, setComplaintForm] = useState({ title: '', location: '', description: '', department: 'Road', image: '' });
-  const [workOrderForm, setWorkOrderForm] = useState({ title: '', department: 'Road', schedule: '2026-08-14', engineers: '', route: '', image: '' });
-  const [noticeForm, setNoticeForm] = useState({ title: '', department: 'Road', detail: '' });
+  const [workOrderForm, setWorkOrderForm] = useState({ title: '', department: user?.department || 'Road', schedule: '2026-08-14', engineers: '', route: '', image: '' });
+  const [noticeForm, setNoticeForm] = useState({ title: '', detail: '' });
+  const [accountForm, setAccountForm] = useState({ name: '', email: '', password: 'demo123', department: 'Road' });
 
-  const visibleComplaints = useMemo(() => complaints.filter((item) => (selectedDepartment === 'All' ? true : item.department === selectedDepartment)), [complaints, selectedDepartment]);
+  const visibleComplaints = useMemo(() => {
+    const base = getVisibleComplaints();
+    return selectedDepartment === 'All' ? base : base.filter((item) => item.department === selectedDepartment);
+  }, [getVisibleComplaints, selectedDepartment]);
+
+  const visibleWorkOrders = useMemo(() => getVisibleWorkOrders(), [getVisibleWorkOrders]);
+  const visibleNotices = useMemo(() => getVisibleNotices(), [getVisibleNotices]);
+
+  const canPublishNotices = user?.role === 'super_dept';
+  const canCreateAccounts = user?.role === 'super_admin' || user?.role === 'super_dept';
+  const canManageComplaints = user?.role === 'super_dept' || user?.role === 'dept_admin';
+  const canCreateWorkOrders = user?.role === 'super_dept' || user?.role === 'dept_admin';
 
   const handleComplaintSubmit = (e) => {
     e.preventDefault();
@@ -42,7 +54,14 @@ export default function RoadGuard() {
   const handleNoticePublish = (e) => {
     e.preventDefault();
     publishNotice(noticeForm);
-    setNoticeForm({ title: '', department: 'Road', detail: '' });
+    setNoticeForm({ title: '', detail: '' });
+  };
+
+  const handleAccountSubmit = (e) => {
+    e.preventDefault();
+    const role = user.role === 'super_admin' ? 'super_dept' : 'dept_admin';
+    createAccount({ ...accountForm, role, department: user.role === 'super_admin' ? accountForm.department : user.department });
+    setAccountForm({ name: '', email: '', password: 'demo123', department: 'Road' });
   };
 
   if (!user) {
