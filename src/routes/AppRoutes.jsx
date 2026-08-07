@@ -5,7 +5,6 @@ import ReportHazard from '@/pages/ReportHazard';
 import Incidents from '@/pages/Incidents';
 import SafetyAssistant from '@/pages/SafetyAssistant';
 import Landing from '@/pages/Landing';
-import LawAxis from '@/pages/LawAxis';
 import Login from '@/pages/Login';
 import NotFound from '@/pages/NotFound';
 
@@ -13,10 +12,6 @@ export const router = createBrowserRouter([
   {
     path: '/',
     element: <Landing />,
-  },
-  {
-    path: '/lawaxis',
-    element: <LawAxis />,
   },
   {
     path: '/login',
