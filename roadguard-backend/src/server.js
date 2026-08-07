@@ -11,6 +11,8 @@ const usersRouter = require('./routes/users');
 const noticesRouter = require('./routes/notices');
 const { authenticate } = require('./middleware/auth');
 
+const path = require('path');
+
 const app = express();
 
 app.use(cors());
@@ -19,6 +21,7 @@ app.use(express.urlencoded({ limit: '15mb', extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, '../public/uploads')));
 
 app.get('/health', (req, res) => res.json({ status: 'ok' }));
+
 
 app.use('/api/auth', authRouter);
 app.use('/api/work-orders', workOrdersRouter);
@@ -40,3 +43,5 @@ server.on('error', (err) => {
     console.error('❌ Server error:', err);
   }
 });
+
+module.exports = { app, server };
