@@ -72,4 +72,7 @@ async function processAndSavePhoto(photoInput, reqHost = 'localhost:4000', reqPr
   return `${reqProtocol}://${reqHost}/uploads/default_pothole.jpg`;
 }
 
-module.exports = { processAndSavePhoto };
+module.exports = { 
+  processAndSavePhoto,
+  processAndUploadImage: processAndSavePhoto 
+};
