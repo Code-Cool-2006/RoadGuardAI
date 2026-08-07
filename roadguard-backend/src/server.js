@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 
+const path = require('path');
 const authRouter = require('./routes/auth');
 const workOrdersRouter = require('./routes/workOrders');
 const complaintsRouter = require('./routes/complaints');
@@ -17,8 +18,6 @@ const app = express();
 app.use(cors());
 app.use(express.json({ limit: '15mb' }));
 app.use(express.urlencoded({ limit: '15mb', extended: true }));
-
-// Serve static uploads
 app.use('/uploads', express.static(path.join(__dirname, '../public/uploads')));
 
 app.get('/health', (req, res) => res.json({ status: 'ok' }));
