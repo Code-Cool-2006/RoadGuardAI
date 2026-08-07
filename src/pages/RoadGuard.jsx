@@ -139,7 +139,7 @@ export default function RoadGuard() {
   const RoleIcon = roleBadgeInfo.icon;
 
   return (
-    <div className="space-y-8">
+    <div className="dashboard-shell space-y-8">
       {/* HEADER BANNER WITH RBAC ROLE SUMMARY */}
       <section className="rounded-[24px] border border-slate-800/80 bg-slate-900/80 p-8 shadow-2xl backdrop-blur-md">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">

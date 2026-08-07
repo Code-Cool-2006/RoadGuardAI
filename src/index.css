@@ -38,13 +38,53 @@
 body {
   margin: 0;
   min-height: 100vh;
-  background: var(--background);
-  color: var(--foreground);
+  background: #F8F6F0;
+  color: #1C1C1C;
 }
 
 #root {
   min-height: 100vh;
   width: 100%;
+}
+
+.dashboard-shell {
+  color: #1C1C1C;
+}
+
+.dashboard-shell [class*="bg-slate-900"],
+.dashboard-shell [class*="bg-slate-950"],
+.dashboard-shell [class*="bg-slate-800"],
+.dashboard-shell [class*="bg-slate-700"] {
+  background-color: #ffffff !important;
+  border-color: rgba(43, 38, 83, 0.12) !important;
+}
+
+.dashboard-shell [class*="text-slate-300"],
+.dashboard-shell [class*="text-slate-400"],
+.dashboard-shell [class*="text-slate-500"],
+.dashboard-shell [class*="text-slate-200"],
+.dashboard-shell [class*="text-slate-100"] {
+  color: #5A5A5A !important;
+}
+
+.dashboard-shell [class*="border-slate-800"],
+.dashboard-shell [class*="border-slate-900"],
+.dashboard-shell [class*="border-slate-700"] {
+  border-color: rgba(43, 38, 83, 0.12) !important;
+}
+
+.dashboard-shell [class*="shadow-2xl"],
+.dashboard-shell [class*="shadow-xl"],
+.dashboard-shell [class*="shadow-lg"] {
+  box-shadow: 0 15px 60px rgba(43, 38, 83, 0.04) !important;
+}
+
+.dashboard-shell input,
+.dashboard-shell select,
+.dashboard-shell textarea {
+  background-color: #ffffff !important;
+  border-color: rgba(43, 38, 83, 0.14) !important;
+  color: #1C1C1C !important;
 }
 
 @theme inline {
