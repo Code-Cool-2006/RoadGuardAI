@@ -33,13 +33,77 @@ const DEPARTMENTS = {
   gas: { name: 'Gas', color: '#F59E0B', bg: 'bg-amber-500', stroke: '#F59E0B', icon: Flame },
 };
 
-// Initial Work Orders: Empty for manual entry by user
-const INITIAL_WORK_ORDERS = [];
+// Initial Work Orders with 2 Corridor Footprint Polygons in Belagavi, Karnataka
+const INITIAL_WORK_ORDERS = [
+  {
+    id: 'wo-101',
+    department: 'roads',
+    title: 'Khanapur Road Resurfacing Corridor',
+    startDate: '2026-08-15',
+    endDate: '2026-08-25',
+    bufferM: 15,
+    coords: [
+      [15.8420, 74.4920],
+      [15.8485, 74.4985],
+      [15.8540, 74.5045],
+      [15.8590, 74.5100],
+    ],
+    polygon: [
+      [15.8415, 74.4910],
+      [15.8430, 74.4930],
+      [15.8600, 74.5110],
+      [15.8585, 74.5090],
+    ],
+  },
+  {
+    id: 'wo-102',
+    department: 'water',
+    title: 'College Road Water Main Trenching Corridor',
+    startDate: '2026-08-18',
+    endDate: '2026-08-28',
+    bufferM: 15,
+    coords: [
+      [15.8435, 74.4990],
+      [15.8490, 74.5005],
+      [15.8550, 74.5050],
+      [15.8600, 74.5120],
+    ],
+    polygon: [
+      [15.8440, 74.5005],
+      [15.8425, 74.4975],
+      [15.8590, 74.5105],
+      [15.8605, 74.5135],
+    ],
+  },
+];
 
-// Initial Conflicts: Empty until work orders are entered
-const INITIAL_CONFLICTS = [];
-
-
+// Pre-computed Conflict Intersection where Polygon 1 & Polygon 2 intersect
+const INITIAL_CONFLICTS = [
+  {
+    id: 'conflict-1',
+    orderAId: 'wo-101',
+    orderBId: 'wo-102',
+    deptA: 'roads',
+    deptB: 'water',
+    titleA: 'Khanapur Road Resurfacing',
+    titleB: 'College Road Water Main',
+    dateGapDays: 3,
+    severity: 'high',
+    color: '#EF4444',
+    center: [15.8490, 74.5000], // Exact intersection point where red dot is positioned
+    polygon: [
+      [15.8480, 74.4988],
+      [15.8505, 74.4995],
+      [15.8500, 74.5015],
+      [15.8475, 74.5008],
+    ],
+    unifiedWindow: {
+      start: '2026-08-15',
+      end: '2026-08-28',
+    },
+    approved: false,
+  },
+];
 
 export default function UndergroundConflictMap() {
   const mapRef = useRef(null);
@@ -53,13 +117,13 @@ export default function UndergroundConflictMap() {
     telecom: true,
     gas: true,
   });
-  const [workOrders, setWorkOrders] = useState([]);
-  const [conflicts, setConflicts] = useState([]);
-  const [selectedConflict, setSelectedConflict] = useState(null);
+  const [workOrders, setWorkOrders] = useState(INITIAL_WORK_ORDERS);
+  const [conflicts, setConflicts] = useState(INITIAL_CONFLICTS);
+  const [selectedConflict, setSelectedConflict] = useState(INITIAL_CONFLICTS[0]);
   const [algorithmTab, setAlgorithmTab] = useState(false);
   const [simulationModal, setSimulationModal] = useState(false);
   const [simDept, setSimDept] = useState('telecom');
-  const [simTitle, setSimTitle] = useState('College Road Optical Fiber Duct');
+  const [simTitle, setSimTitle] = useState('Chennamma Circle 5G Fiber Duct');
 
   // Toggle department checkbox
   const toggleDept = (deptKey) => {
@@ -95,25 +159,40 @@ export default function UndergroundConflictMap() {
     };
   }, []);
 
-  // Render Polylines & Overlap Polygons dynamically when state or layer filters change
+  // Render Polylines, 2 Corridor Polygons & Overlap Intersection with Red Dot
   useEffect(() => {
     if (!leafletMap.current || !layersGroupRef.current) return;
     const group = layersGroupRef.current;
     group.clearLayers();
 
-    // 1. Draw Work Order Polylines for enabled departments
+    // 1. Draw the 2 Work Order Corridor Polygons (Rectangles) & Centerlines
     workOrders.forEach((order) => {
       if (!visibleDepts[order.department]) return;
 
       const dept = DEPARTMENTS[order.department];
       if (!dept) return;
 
-      
-      // Draw outer route glow / line
+      // Draw Corridor Buffer Polygon (Rectangle)
+      if (order.polygon) {
+        const corridorPolygon = L.polygon(order.polygon, {
+          color: dept.color,
+          fillColor: dept.color,
+          fillOpacity: 0.22,
+          weight: 2,
+          dashArray: '4, 6',
+        }).addTo(group);
+
+        corridorPolygon.bindTooltip(
+          `<div class="font-sans font-bold text-xs" style="color: ${dept.color}">Corridor Footprint: ${order.title} (${dept.name})</div>`,
+          { permanent: false, direction: 'top', className: 'dark-tooltip' }
+        );
+      }
+
+      // Draw Center Route Polyline
       const polyline = L.polyline(order.coords, {
         color: dept.color,
-        weight: 5,
-        opacity: 0.9,
+        weight: 4,
+        opacity: 0.95,
         lineCap: 'round',
         lineJoin: 'round',
       }).addTo(group);
@@ -124,47 +203,49 @@ export default function UndergroundConflictMap() {
       );
     });
 
-    // 2. Draw Overlap Conflict Polygons
+    // 2. Draw Overlap Conflict Polygon & The Pulsing Red Dot at the exact intersection
     conflicts.forEach((conflict) => {
       // Check if both departments are visible
       if (!visibleDepts[conflict.deptA] || !visibleDepts[conflict.deptB]) return;
 
       const isSelected = selectedConflict?.id === conflict.id;
 
-      const polygon = L.polygon(conflict.polygon, {
+      // Draw the Intersection Overlap Polygon
+      const overlapPolygon = L.polygon(conflict.polygon, {
         color: conflict.color,
         fillColor: conflict.color,
-        fillOpacity: isSelected ? 0.75 : 0.45,
+        fillOpacity: isSelected ? 0.8 : 0.5,
         weight: isSelected ? 3 : 2,
         dashArray: conflict.approved ? '4, 4' : undefined,
       }).addTo(group);
 
-      // Create Custom Pulse Marker at Conflict Center
-      const icon = L.divIcon({
+      // Create Custom Glowing Red Dot Pin at the exact Intersection Center
+      const redDotIcon = L.divIcon({
         className: 'custom-conflict-pin',
         html: `
-          <div class="relative flex items-center justify-center w-6 h-6">
-            <span class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style="background-color: ${conflict.color}"></span>
-            <span class="relative inline-flex rounded-full h-4 w-4 border-2 border-white items-center justify-center text-[9px] font-bold text-white shadow-lg" style="background-color: ${conflict.color}">
+          <div class="relative flex items-center justify-center w-8 h-8 cursor-pointer">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-500 opacity-80"></span>
+            <span class="relative inline-flex rounded-full h-5 w-5 bg-rose-600 border-2 border-white shadow-[0_0_15px_rgba(239,68,68,1)] items-center justify-center text-[10px] font-black text-white">
               !
             </span>
           </div>
         `,
-        iconSize: [24, 24],
-        iconAnchor: [12, 12],
+        iconSize: [32, 32],
+        iconAnchor: [16, 16],
       });
 
-      const marker = L.marker(conflict.center, { icon }).addTo(group);
+      const redDotMarker = L.marker(conflict.center, { icon: redDotIcon }).addTo(group);
 
       const handleSelect = () => {
         setSelectedConflict(conflict);
         leafletMap.current.flyTo(conflict.center, 16, { duration: 0.8 });
       };
 
-      polygon.on('click', handleSelect);
-      marker.on('click', handleSelect);
+      overlapPolygon.on('click', handleSelect);
+      redDotMarker.on('click', handleSelect);
     });
-  }, [visibleDepts, conflicts, selectedConflict]);
+  }, [visibleDepts, workOrders, conflicts, selectedConflict]);
+
 
   // Approve Unified Scheduling Window
   const handleApproveWindow = (conflictId) => {
