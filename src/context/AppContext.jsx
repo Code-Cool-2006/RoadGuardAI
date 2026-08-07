@@ -25,8 +25,25 @@ function normalizeStatus(raw) {
   return raw;
 }
 
+function isValidImageUrl(url) {
+  if (!url || typeof url !== 'string') return false;
+  const trimmed = url.trim();
+  if (trimmed.length < 15) return false;
+  // Detect PostGIS binary hex geometries (e.g. 0101000020E6100000...)
+  if (trimmed.startsWith('01010000') || /^[0-9A-Fa-f]{20,}$/.test(trimmed)) return false;
+  // If base64 data url, a real camera photo is at least 4,000 characters; small canvases are blank/empty tests
+  if (trimmed.startsWith('data:image/')) {
+    return trimmed.length > 4000;
+  }
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://') || trimmed.startsWith('/uploads')) {
+    if (trimmed.includes('blank') || trimmed.includes('empty') || trimmed.includes('placeholder')) return false;
+    return true;
+  }
+  return false;
+}
+
 function normalizePhoto(url) {
-  if (!url) return 'https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?w=600&auto=format&fit=crop';
+  if (!isValidImageUrl(url)) return null;
   if (url.startsWith('http://localhost:4000') || url.startsWith('http://127.0.0.1:4000')) {
     return url.replace(/http:\/\/(localhost|127\.0\.0\.1):4000/, API_BASE_URL);
   }
@@ -75,21 +92,36 @@ export function AppProvider({ children }) {
     try {
       const liveComplaints = await api.getComplaints();
       if (Array.isArray(liveComplaints)) {
-        const mapped = liveComplaints.map((item) => ({
-          id: item.id,
-          title: item.description?.substring(0, 60) || `Infrastructure Hazard #${item.id}`,
-          department: normalizeDept(item.department || item.ai_suggested_dept),
-          status: normalizeStatus(item.status),
-          location: typeof item.location === 'object' && item.location ? `GPS (${item.location.lat ?? 12.97}, ${item.location.lng ?? 77.59})` : (item.location || 'Civic Corridor'),
-          description: item.description || 'Citizen reported municipal infrastructure issue.',
-          author: item.citizen_name || 'Citizen Report',
-          assignedStaff: item.assigned_to || item.assigned_staff || null,
-          likes: item.likes ?? 12,
-          comments: item.comments || [],
-          image: normalizePhoto(item.photo_url),
-          confidence: Math.round((item.ai_confidence || 0.85) * 100),
-          createdAt: item.submitted_at || item.created_at,
-        }));
+        const mapped = liveComplaints.map((item) => {
+          const hasValidPhoto = isValidImageUrl(item.photo_url);
+          const isBlankOrTest = !hasValidPhoto || 
+            item.description?.toLowerCase().includes('base64') || 
+            item.description?.toLowerCase().includes('pipeline test') ||
+            item.description?.toLowerCase().includes('test') ||
+            item.photo_url?.includes('placeholder');
+
+          const isFake = item.ai_is_genuine === false || isBlankOrTest;
+          const confidence = isFake ? 4 : (item.ai_confidence && item.ai_confidence !== 0.85 ? Math.round(item.ai_confidence <= 1 ? item.ai_confidence * 100 : item.ai_confidence) : 94);
+
+          return {
+            id: item.id,
+            title: item.description?.substring(0, 60) || `Infrastructure Hazard #${item.id}`,
+            department: normalizeDept(item.department || item.ai_suggested_dept),
+            status: normalizeStatus(item.status),
+            location: typeof item.location === 'object' && item.location ? `GPS (${item.location.lat ?? 12.97}, ${item.location.lng ?? 77.59})` : (item.location || 'Civic Corridor'),
+            description: item.description || 'Citizen reported municipal infrastructure issue.',
+            author: item.citizen_name || 'Citizen Report',
+            assignedStaff: item.assigned_to || item.assigned_staff || null,
+            likes: item.likes ?? 12,
+            comments: item.comments || [],
+            image: normalizePhoto(item.photo_url),
+            confidence: confidence,
+            isGenuine: !isFake,
+            authenticity: isFake ? 'FAKE' : 'REAL',
+            issueType: isFake ? 'blank_or_invalid_evidence' : (item.ai_issue_type || 'pothole_damage'),
+            createdAt: item.submitted_at || item.created_at,
+          };
+        });
         setComplaints(mapped);
         console.log(`[RoadGuard] Live database loaded: ${mapped.length} complaints.`);
       }
