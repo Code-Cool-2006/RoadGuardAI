@@ -2,20 +2,20 @@ import React, { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
-import { 
-  AlertTriangle, 
-  Layers, 
-  Calendar, 
-  Sparkles, 
-  CheckCircle2, 
-  Plus, 
-  Info, 
-  ArrowRight, 
-  MapPin, 
-  ShieldAlert, 
-  Flame, 
-  Droplet, 
-  Radio, 
+import {
+  AlertTriangle,
+  Layers,
+  Calendar,
+  Sparkles,
+  CheckCircle2,
+  Plus,
+  Info,
+  ArrowRight,
+  MapPin,
+  ShieldAlert,
+  Flame,
+  Droplet,
+  Radio,
   Road,
   RefreshCw
 } from 'lucide-react';
@@ -454,10 +454,10 @@ export default function UndergroundConflictMap() {
 
       {/* Main Interactive Map & Triage Layout */}
       <div className="grid gap-6 xl:grid-cols-[1fr_420px]">
-        
+
         {/* MAP CONTAINER CARD */}
         <div className="relative rounded-[24px] border border-slate-800 bg-slate-950 overflow-hidden min-h-[580px] shadow-2xl flex flex-col">
-          
+
           {/* Leaflet DOM container */}
           <div ref={mapRef} className="absolute inset-0 z-0 h-full w-full bg-slate-950" />
 
@@ -522,7 +522,7 @@ export default function UndergroundConflictMap() {
 
         {/* RIGHT SIDEBAR: ACTIONABLE TRIAGE & UNIFIED SCHEDULING (Matching Image 2 Specification) */}
         <div className="space-y-6">
-          
+
           {/* CONFLICT TRIAGE DETAILS CARD */}
           <div className="rounded-[24px] border border-slate-800 bg-slate-900/90 p-6 text-slate-200 shadow-2xl backdrop-blur-md space-y-6">
             <div className="flex items-center justify-between border-b border-slate-800 pb-4">
@@ -546,7 +546,7 @@ export default function UndergroundConflictMap() {
 
             {selectedConflict ? (
               <div className="space-y-6">
-                
+
                 {/* 1. Involved Work Orders & Date Gap */}
                 <div className="space-y-3">
                   <div className="flex items-center justify-between text-xs text-slate-400">
@@ -645,11 +645,10 @@ export default function UndergroundConflictMap() {
                   <button
                     onClick={() => handleApproveWindow(selectedConflict.id)}
                     disabled={selectedConflict.approved}
-                    className={`w-full py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition shadow-lg ${
-                      selectedConflict.approved
+                    className={`w-full py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition shadow-lg ${selectedConflict.approved
                         ? 'bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 cursor-default'
                         : 'bg-indigo-600 text-white hover:bg-indigo-500 shadow-indigo-600/30'
-                    }`}
+                      }`}
                   >
                     {selectedConflict.approved ? (
                       <>
@@ -699,11 +698,10 @@ export default function UndergroundConflictMap() {
                         leafletMap.current.flyTo(c.center, 16);
                       }
                     }}
-                    className={`w-full text-left p-3 rounded-xl border text-xs transition flex items-center justify-between ${
-                      isSelected
+                    className={`w-full text-left p-3 rounded-xl border text-xs transition flex items-center justify-between ${isSelected
                         ? 'border-indigo-500 bg-indigo-500/10 text-white'
                         : 'border-slate-800 bg-slate-950/60 text-slate-300 hover:bg-slate-800/50'
-                    }`}
+                      }`}
                   >
                     <div>
                       <div className="font-bold flex items-center gap-2">
