@@ -11,9 +11,8 @@ const usersRouter = require('./routes/users');
 const noticesRouter = require('./routes/notices');
 const { authenticate } = require('./middleware/auth');
 
-const path = require('path');
-
 const app = express();
+
 
 app.use(cors());
 app.use(express.json({ limit: '15mb' }));
