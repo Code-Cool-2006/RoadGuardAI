@@ -2,17 +2,20 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../db');
 const { analyzePhoto } = require('../services/aiAnalyzer');
+const { processAndSavePhoto } = require('../services/imageUploader');
 
 router.post('/', async (req, res) => {
   const { citizen_name, citizen_contact, department, photo_url, description, location } = req.body;
   try {
+    const finalPhotoUrl = await processAndSavePhoto(photo_url, req.get('host'), req.protocol);
+
     const result = await pool.query(
       `INSERT INTO complaints (citizen_name, citizen_contact, department, photo_url, description, location)
        VALUES ($1, $2, $3, $4, $5, ST_GeomFromGeoJSON($6)) RETURNING id`,
-      [citizen_name, citizen_contact, department, photo_url, description, JSON.stringify(location)]
+      [citizen_name, citizen_contact, department, finalPhotoUrl, description, JSON.stringify(location)]
     );
 
-    const verdict = await analyzePhoto(photo_url);
+    const verdict = await analyzePhoto(finalPhotoUrl);
     await pool.query(
       `UPDATE complaints
        SET ai_is_genuine=$1, ai_issue_type=$2, ai_suggested_dept=$3, ai_confidence=$4
@@ -20,11 +23,12 @@ router.post('/', async (req, res) => {
       [verdict.is_likely_genuine, verdict.issue_type, verdict.suggested_department, verdict.confidence, result.rows[0].id]
     );
 
-    res.status(201).json({ id: result.rows[0].id, verdict });
+    res.status(201).json({ id: result.rows[0].id, verdict, photo_url: finalPhotoUrl });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
+
 
 router.get('/:id', async (req, res) => {
   const result = await pool.query('SELECT * FROM complaints WHERE id = $1', [req.params.id]);
