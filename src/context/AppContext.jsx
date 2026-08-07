@@ -91,6 +91,11 @@ export function AppProvider({ children }) {
   const [complaints, setComplaints] = useState(initialComplaints);
   const [workOrders, setWorkOrders] = useState(initialWorkOrders);
   const [notices, setNotices] = useState(initialNotices);
+  const [accounts, setAccounts] = useState([
+    { id: 1, name: 'Alex Rivera', email: 'alex@road.gov', role: 'super_dept', department: 'Road' },
+    { id: 2, name: 'Sarah Waters', email: 'sarah@water.gov', role: 'dept_admin', department: 'Water' },
+    { id: 3, name: 'Mark Gas', email: 'mark@gas.gov', role: 'dept_admin', department: 'Gas' },
+  ]);
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', theme === 'dark');
@@ -118,6 +123,7 @@ export function AppProvider({ children }) {
       comments: [],
       image: payload.image,
       confidence: 90,
+      assignedStaff: '',
     };
     setComplaints((current) => [newComplaint, ...current]);
   };
@@ -142,6 +148,12 @@ export function AppProvider({ children }) {
     setComplaints((current) => current.map((complaint) => (complaint.id === id ? { ...complaint, status } : complaint)));
   };
 
+  const assignComplaintStaff = (id, staffName) => {
+    setComplaints((current) =>
+      current.map((complaint) => (complaint.id === id ? { ...complaint, assignedStaff: staffName } : complaint))
+    );
+  };
+
   const createWorkOrder = (payload) => {
     const nextOrder = {
       id: Date.now(),
@@ -150,7 +162,7 @@ export function AppProvider({ children }) {
       schedule: payload.schedule,
       engineers: payload.engineers,
       route: payload.route,
-      status: 'Planned',
+      status: 'yet_to_start',
     };
     setWorkOrders((current) => [nextOrder, ...current]);
     setNotices((current) => [
@@ -162,6 +174,12 @@ export function AppProvider({ children }) {
       },
       ...current,
     ]);
+  };
+
+  const updateWorkOrderStatus = (id, status) => {
+    setWorkOrders((current) =>
+      current.map((order) => (order.id === id ? { ...order, status } : order))
+    );
   };
 
   const publishNotice = (payload) => {
@@ -176,6 +194,19 @@ export function AppProvider({ children }) {
     ]);
   };
 
+  const createAccount = (payload) => {
+    setAccounts((current) => [
+      ...current,
+      {
+        id: Date.now(),
+        name: payload.name,
+        email: payload.email,
+        role: payload.role,
+        department: payload.department,
+      },
+    ]);
+  };
+
   const value = useMemo(
     () => ({
       theme,
@@ -186,14 +217,18 @@ export function AppProvider({ children }) {
       complaints,
       workOrders,
       notices,
+      accounts,
       submitComplaint,
       addComment,
       toggleLike,
       updateComplaintStatus,
+      assignComplaintStaff,
       createWorkOrder,
+      updateWorkOrderStatus,
       publishNotice,
+      createAccount,
     }),
-    [theme, user, complaints, workOrders, notices]
+    [theme, user, complaints, workOrders, notices, accounts]
   );
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

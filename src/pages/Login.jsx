@@ -4,9 +4,10 @@ import { ArrowRight, Eye, EyeOff, MoonStar, ShieldCheck, SunMedium } from 'lucid
 import { useAppContext } from '@/context/AppContext';
 
 const roles = [
-  { id: 'citizen', label: 'Citizen', description: 'File reports and monitor progress', accent: 'from-[#10B981]/20 to-[#10B981]/10' },
-  { id: 'dept_admin', label: 'Department Admin', description: 'Coordinate department workflows', accent: 'from-[#2B2653]/20 to-[#2B2653]/10' },
-  { id: 'super_admin', label: 'Super Admin', description: 'Unlock city-wide oversight', accent: 'from-[#8B5CF6]/20 to-[#8B5CF6]/10' },
+  { id: 'citizen', label: 'Citizen', description: 'File reports & view community feed', accent: 'from-[#10B981]/20 to-[#10B981]/10' },
+  { id: 'dept_admin', label: 'Dept Admin', description: 'Assign staff & resolve complaints', accent: 'from-[#2B2653]/20 to-[#2B2653]/10' },
+  { id: 'super_dept', label: 'Super Dept', description: 'Publish notices & manage admins', accent: 'from-[#F59E0B]/20 to-[#F59E0B]/10' },
+  { id: 'super_admin', label: 'Super Admin', description: 'System-wide oversight & creation', accent: 'from-[#8B5CF6]/20 to-[#8B5CF6]/10' },
 ];
 
 export default function Login() {
@@ -20,8 +21,13 @@ export default function Login() {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    const roleKey = selectedRole === 'dept_admin' ? 'dept_admin' : selectedRole === 'super_admin' ? 'super_admin' : 'citizen';
-    const resolvedDepartment = selectedRole === 'dept_admin' ? department : 'Public';
+    const roleKey = selectedRole;
+    let resolvedDepartment = 'Public';
+    if (selectedRole === 'dept_admin' || selectedRole === 'super_dept') {
+      resolvedDepartment = department;
+    } else if (selectedRole === 'super_admin') {
+      resolvedDepartment = 'All';
+    }
     login(roleKey, resolvedDepartment, name || 'Operator', email);
     navigate('/dashboard/overview');
   };
@@ -70,12 +76,12 @@ export default function Login() {
               <div className="rounded-full border border-[#2B2653]/10 bg-[#EFECE4] px-3 py-1 text-sm text-[#2B2653] font-medium shadow-sm">Role-based</div>
             </div>
 
-            <div className="mt-6 grid gap-3 md:grid-cols-3">
+            <div className="mt-6 grid gap-3 md:grid-cols-2 lg:grid-cols-4">
               {roles.map((role) => (
-                <button key={role.id} type="button" onClick={() => setSelectedRole(role.id)} className={`rounded-[16px] border p-4 text-left transition shadow-sm ${selectedRole === role.id ? 'border-[#2B2653] bg-[#2B2653]/5 text-[#1C1C1C]' : 'border-[#2B2653]/10 bg-white text-[#5A5A5A] hover:bg-[#F8F6F0]'}`}>
-                  <div className={`mb-3 h-10 w-10 rounded-full bg-gradient-to-br ${role.accent}`} />
-                  <p className="font-semibold">{role.label}</p>
-                  <p className="mt-1 text-sm opacity-80 leading-snug">{role.description}</p>
+                <button key={role.id} type="button" onClick={() => setSelectedRole(role.id)} className={`rounded-[16px] border p-3 text-left transition shadow-sm ${selectedRole === role.id ? 'border-[#2B2653] bg-[#2B2653]/5 text-[#1C1C1C]' : 'border-[#2B2653]/10 bg-white text-[#5A5A5A] hover:bg-[#F8F6F0]'}`}>
+                  <div className={`mb-2 h-8 w-8 rounded-full bg-gradient-to-br ${role.accent}`} />
+                  <p className="font-semibold text-sm">{role.label}</p>
+                  <p className="mt-1 text-xs opacity-80 leading-tight">{role.description}</p>
                 </button>
               ))}
             </div>
@@ -85,7 +91,7 @@ export default function Login() {
                 <input value={name} onChange={(e) => setName(e.target.value)} className="rounded-xl border border-[#2B2653]/20 bg-white px-4 py-3 text-sm text-[#1C1C1C] placeholder:text-[#5A5A5A]/50 focus:border-[#2B2653] focus:ring-1 focus:ring-[#2B2653] focus:outline-none" placeholder="Full name" required />
                 <input value={email} onChange={(e) => setEmail(e.target.value)} className="rounded-xl border border-[#2B2653]/20 bg-white px-4 py-3 text-sm text-[#1C1C1C] placeholder:text-[#5A5A5A]/50 focus:border-[#2B2653] focus:ring-1 focus:ring-[#2B2653] focus:outline-none" placeholder="Email" type="email" required />
               </div>
-              {selectedRole === 'dept_admin' && (
+              {(selectedRole === 'dept_admin' || selectedRole === 'super_dept') && (
                 <select value={department} onChange={(e) => setDepartment(e.target.value)} className="w-full rounded-xl border border-[#2B2653]/20 bg-white px-4 py-3 text-sm text-[#1C1C1C] focus:border-[#2B2653] focus:ring-1 focus:ring-[#2B2653] focus:outline-none">
                   <option value="Road">Road</option>
                   <option value="Water">Water</option>
