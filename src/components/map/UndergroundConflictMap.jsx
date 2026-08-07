@@ -33,141 +33,12 @@ const DEPARTMENTS = {
   gas: { name: 'Gas', color: '#F59E0B', bg: 'bg-amber-500', stroke: '#F59E0B', icon: Flame },
 };
 
-// Initial Work Orders with real spatial coordinates (centered in Belagavi, Karnataka, India)
-const INITIAL_WORK_ORDERS = [
-  {
-    id: 'wo-101',
-    department: 'roads',
-    title: 'Khanapur Road & Camp Corridor Resurfacing',
-    startDate: '2026-08-15',
-    endDate: '2026-08-25',
-    bufferM: 15,
-    coords: [
-      [15.8420, 74.4920],
-      [15.8485, 74.4985],
-      [15.8540, 74.5045],
-      [15.8590, 74.5100],
-    ],
-  },
-  {
-    id: 'wo-102',
-    department: 'water',
-    title: 'College Road & RPD Cross Water Main Overhaul',
-    startDate: '2026-08-18',
-    endDate: '2026-08-28',
-    bufferM: 15,
-    coords: [
-      [15.8435, 74.4990],
-      [15.8490, 74.5005],
-      [15.8550, 74.5050],
-      [15.8600, 74.5120],
-    ],
-  },
-  {
-    id: 'wo-103',
-    department: 'telecom',
-    title: 'Chennamma Circle to Bogarves 5G Optical Fiber Duct',
-    startDate: '2026-09-01',
-    endDate: '2026-09-12',
-    bufferM: 15,
-    coords: [
-      [15.8580, 74.5020],
-      [15.8550, 74.5060],
-      [15.8510, 74.5010],
-      [15.8450, 74.4960],
-    ],
-  },
-  {
-    id: 'wo-104',
-    department: 'gas',
-    title: 'Congress Road & Tilakwadi PNG Pipeline Grid',
-    startDate: '2026-08-20',
-    endDate: '2026-09-05',
-    bufferM: 15,
-    coords: [
-      [15.8400, 74.4970],
-      [15.8460, 74.5000],
-      [15.8520, 74.5035],
-      [15.8570, 74.5075],
-    ],
-  },
-];
+// Initial Work Orders: Empty for manual entry by user
+const INITIAL_WORK_ORDERS = [];
 
-// Pre-computed Conflict Zones matching PostGIS collision algorithm in Belagavi
-const INITIAL_CONFLICTS = [
-  {
-    id: 'conflict-1',
-    orderAId: 'wo-101',
-    orderBId: 'wo-102',
-    deptA: 'roads',
-    deptB: 'water',
-    titleA: 'Khanapur Road Resurfacing',
-    titleB: 'College Road Water Main Overhaul',
-    dateGapDays: 3,
-    severity: 'high', // <30 days
-    color: '#EF4444', // Red
-    center: [15.8490, 74.5000],
-    polygon: [
-      [15.8480, 74.4988],
-      [15.8505, 74.4995],
-      [15.8500, 74.5015],
-      [15.8475, 74.5008],
-    ],
-    unifiedWindow: {
-      start: '2026-08-15',
-      end: '2026-08-28',
-    },
-    approved: false,
-  },
-  {
-    id: 'conflict-2',
-    orderAId: 'wo-102',
-    orderBId: 'wo-103',
-    deptA: 'water',
-    deptB: 'telecom',
-    titleA: 'College Road Water Main',
-    titleB: 'Chennamma Circle Optical Fiber',
-    dateGapDays: 2,
-    severity: 'high', // <30 days
-    color: '#EF4444', // Red
-    center: [15.8555, 74.5055],
-    polygon: [
-      [15.8545, 74.5042],
-      [15.8568, 74.5048],
-      [15.8562, 74.5070],
-      [15.8539, 74.5064],
-    ],
-    unifiedWindow: {
-      start: '2026-08-18',
-      end: '2026-09-12',
-    },
-    approved: false,
-  },
-  {
-    id: 'conflict-3',
-    orderAId: 'wo-101',
-    orderBId: 'wo-104',
-    deptA: 'roads',
-    deptB: 'gas',
-    titleA: 'Khanapur Road Resurfacing',
-    titleB: 'Congress Road PNG Pipeline',
-    dateGapDays: 35,
-    severity: 'medium', // 30-60 days
-    color: '#F97316', // Orange
-    center: [15.8460, 74.4995],
-    polygon: [
-      [15.8450, 74.4985],
-      [15.8472, 74.4990],
-      [15.8468, 74.5012],
-      [15.8446, 74.5007],
-    ],
-    unifiedWindow: {
-      start: '2026-08-15',
-      end: '2026-09-20',
-    },
-    approved: false,
-  },
-];
+// Initial Conflicts: Empty until work orders are entered
+const INITIAL_CONFLICTS = [];
+
 
 
 export default function UndergroundConflictMap() {
@@ -176,19 +47,13 @@ export default function UndergroundConflictMap() {
   const layersGroupRef = useRef(null);
 
   // Layer Checkbox visibility state (Roads, Water, Telecom, Gas)
-  const [visibleDepts, setVisibleDepts] = useState({
-    roads: true,
-    water: true,
-    telecom: true,
-    gas: true,
-  });
-
-  const [conflicts, setConflicts] = useState(INITIAL_CONFLICTS);
-  const [selectedConflict, setSelectedConflict] = useState(INITIAL_CONFLICTS[0]);
+  const [workOrders, setWorkOrders] = useState([]);
+  const [conflicts, setConflicts] = useState([]);
+  const [selectedConflict, setSelectedConflict] = useState(null);
   const [algorithmTab, setAlgorithmTab] = useState(false);
   const [simulationModal, setSimulationModal] = useState(false);
   const [simDept, setSimDept] = useState('telecom');
-  const [simTitle, setSimTitle] = useState('New Cross-District Underground Pipeline');
+  const [simTitle, setSimTitle] = useState('College Road Optical Fiber Duct');
 
   // Toggle department checkbox
   const toggleDept = (deptKey) => {
@@ -205,7 +70,6 @@ export default function UndergroundConflictMap() {
       zoom: 15,
       zoomControl: false,
     });
-
 
     L.control.zoom({ position: 'bottomright' }).addTo(map);
 
@@ -232,10 +96,12 @@ export default function UndergroundConflictMap() {
     group.clearLayers();
 
     // 1. Draw Work Order Polylines for enabled departments
-    INITIAL_WORK_ORDERS.forEach((order) => {
+    workOrders.forEach((order) => {
       if (!visibleDepts[order.department]) return;
 
       const dept = DEPARTMENTS[order.department];
+      if (!dept) return;
+
       
       // Draw outer route glow / line
       const polyline = L.polyline(order.coords, {
@@ -304,43 +170,64 @@ export default function UndergroundConflictMap() {
     }
   };
 
-  // Simulate new work order collision detection
+  // Clear all work orders from map
+  const handleClearMap = () => {
+    setWorkOrders([]);
+    setConflicts([]);
+    setSelectedConflict(null);
+  };
+
+  // Simulate / Manually plot work order collision detection
   const handleSimulateWorkOrder = () => {
     const newId = `wo-${Date.now()}`;
-    const newOrder = {
-      id: newId,
-      department: simDept,
-      title: simTitle,
-      startDate: '2026-08-16',
-      endDate: '2026-08-30',
+    const newOrderA = {
+      id: 'wo-101',
+      department: 'roads',
+      title: 'Khanapur Road & Camp Corridor Resurfacing',
+      startDate: '2026-08-15',
+      endDate: '2026-08-25',
       bufferM: 15,
       coords: [
-        [15.8450, 74.4965],
-        [15.8500, 74.5005],
-        [15.8550, 74.5060],
+        [15.8420, 74.4920],
+        [15.8485, 74.4985],
+        [15.8540, 74.5045],
+        [15.8590, 74.5100],
       ],
     };
 
-    INITIAL_WORK_ORDERS.push(newOrder);
+    const newOrderB = {
+      id: newId,
+      department: simDept,
+      title: simTitle,
+      startDate: '2026-08-18',
+      endDate: '2026-08-30',
+      bufferM: 15,
+      coords: [
+        [15.8435, 74.4990],
+        [15.8490, 74.5005],
+        [15.8550, 74.5050],
+        [15.8600, 74.5120],
+      ],
+    };
 
     // Create new dynamic spatial collision matching existing routes in Belagavi
     const newConflict = {
       id: `conflict-${Date.now()}`,
-      orderAId: newId,
-      orderBId: 'wo-101',
-      deptA: simDept,
-      deptB: 'roads',
-      titleA: simTitle,
-      titleB: 'Khanapur Road & Camp Resurfacing',
-      dateGapDays: 1,
+      orderAId: 'wo-101',
+      orderBId: newId,
+      deptA: 'roads',
+      deptB: simDept,
+      titleA: 'Khanapur Road Resurfacing',
+      titleB: simTitle,
+      dateGapDays: 3,
       severity: 'high',
       color: '#EF4444',
-      center: [15.8500, 74.5005],
+      center: [15.8490, 74.5000],
       polygon: [
-        [15.8492, 74.4998],
-        [15.8512, 74.5002],
-        [15.8508, 74.5020],
-        [15.8488, 74.5015],
+        [15.8480, 74.4988],
+        [15.8505, 74.4995],
+        [15.8500, 74.5015],
+        [15.8475, 74.5008],
       ],
       unifiedWindow: {
         start: '2026-08-15',
@@ -349,7 +236,8 @@ export default function UndergroundConflictMap() {
       approved: false,
     };
 
-    setConflicts((prev) => [newConflict, ...prev]);
+    setWorkOrders([newOrderA, newOrderB]);
+    setConflicts([newConflict]);
     setSelectedConflict(newConflict);
     setSimulationModal(false);
   };
@@ -363,7 +251,7 @@ export default function UndergroundConflictMap() {
             <Sparkles className="h-3.5 w-3.5" /> Spatial Collision & Trenching Engine
           </div>
           <h1 className="mt-2 text-2xl font-bold text-white sm:text-3xl">
-            The Interface: Illuminating the Invisible Underground
+            Belagavi Underground Corridor Map
           </h1>
           <p className="mt-1 max-w-2xl text-sm text-slate-300">
             Detect spatial route overlaps, calculate temporal date gaps, and approve unified trenching windows.
@@ -371,6 +259,16 @@ export default function UndergroundConflictMap() {
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
+          {workOrders.length > 0 && (
+            <button
+              onClick={handleClearMap}
+              className="inline-flex items-center gap-2 rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-2.5 text-xs font-semibold text-rose-300 hover:bg-rose-500/20 transition"
+            >
+              <RefreshCw className="h-4 w-4" />
+              Clear Map
+            </button>
+          )}
+
           <button
             onClick={() => setAlgorithmTab(!algorithmTab)}
             className="inline-flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-800/80 px-4 py-2.5 text-xs font-semibold text-slate-200 hover:bg-slate-700 transition"
@@ -384,10 +282,11 @@ export default function UndergroundConflictMap() {
             className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-xs font-semibold text-white shadow-lg shadow-indigo-600/30 hover:bg-indigo-500 transition"
           >
             <Plus className="h-4 w-4" />
-            Simulate Work Order
+            Add / Simulate Work Order
           </button>
         </div>
       </div>
+
 
       {/* Collision Algorithm Stepper Diagram (Image 1 Specification) */}
       {algorithmTab && (
@@ -679,11 +578,23 @@ export default function UndergroundConflictMap() {
 
               </div>
             ) : (
-              <div className="py-12 text-center text-slate-400 space-y-2">
-                <AlertTriangle className="h-8 w-8 text-slate-600 mx-auto" />
-                <p className="text-xs">Click any polygon or marker on the map to review spatial details.</p>
+              <div className="py-10 px-4 text-center space-y-3">
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl border border-indigo-500/20 bg-indigo-500/10 text-indigo-400">
+                  <MapPin className="h-6 w-6" />
+                </div>
+                <h4 className="text-sm font-bold text-white">No Corridors Plotted</h4>
+                <p className="text-xs text-slate-400 max-w-xs mx-auto leading-relaxed">
+                  The Belagavi map is ready. Click <strong>"Add / Simulate Work Order"</strong> above to plot municipal corridors and detect underground collisions.
+                </p>
+                <button
+                  onClick={() => setSimulationModal(true)}
+                  className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-xs font-bold text-white hover:bg-indigo-500 transition shadow-lg shadow-indigo-600/20"
+                >
+                  <Plus className="h-3.5 w-3.5" /> Add Work Order
+                </button>
               </div>
             )}
+
           </div>
 
           {/* ALL CONFLICTS QUICK LIST */}
