@@ -1,5 +1,6 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { Shield, AlertTriangle, MapPin, Sparkles, Activity, MoonStar, SunMedium, LogOut } from 'lucide-react';
+import { AlertTriangle, MapPin, Sparkles, Activity, MoonStar, SunMedium, LogOut } from 'lucide-react';
+import logoImg from '@/assets/logo.jpg';
 import { useAppContext } from '@/context/AppContext';
 
 export default function Layout() {
@@ -9,8 +10,7 @@ export default function Layout() {
   const isDark = theme === 'dark';
 
   const navItems = [
-    { path: '/dashboard/overview', label: 'Overview', icon: Activity },
-    { path: '/dashboard/report', label: 'Report Hazard', icon: AlertTriangle },
+    { path: '/dashboard/overview', label: 'Overview', icon: Activity }, 
     { path: '/dashboard/incidents', label: 'Live Incidents', icon: MapPin },
   ];
 
@@ -24,8 +24,8 @@ export default function Layout() {
       <header className={`sticky top-0 z-50 border-b backdrop-blur-md shadow-sm ${isDark ? 'border-slate-800/80 bg-slate-950/90' : 'border-[#2B2653]/10 bg-white/90'}`}>
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <Link to="/dashboard/overview" className="flex items-center gap-3 group">
-            <div className="rounded-xl bg-[#2B2653] p-2 shadow-sm transition-transform duration-200 group-hover:scale-105">
-              <Shield className="h-6 w-6 text-white" />
+            <div className="rounded-xl overflow-hidden shadow-sm transition-transform duration-200 group-hover:scale-105 h-10 w-10">
+              <img src={logoImg} alt="RoadGuard AI Logo" className="h-full w-full object-cover" />
             </div>
             <div>
               <span className={`text-xl font-bold tracking-tight ${isDark ? 'text-white' : 'text-[#1C1C1C]'}`}>RoadGuard <span className="text-[#2B2653]">AI</span></span>
@@ -41,6 +41,10 @@ export default function Layout() {
                 <Link
                   key={item.path}
                   to={item.path}
+                  className={`flex items-center gap-2 rounded-full border px-3.5 py-2 text-sm font-medium transition-all duration-200 ${isActive
+                      ? 'border-[#2B2653]/20 bg-[#2B2653]/10 text-[#2B2653] shadow-sm'
+                      : 'border-transparent text-[#5A5A5A] hover:bg-[#F8F6F0] hover:text-[#1C1C1C]'
+                    }`}
                   className={`flex items-center gap-2 rounded-full border px-3.5 py-2 text-sm font-medium transition-all duration-200 ${
                     isActive
                       ? isDark

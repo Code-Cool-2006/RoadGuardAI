@@ -1,5 +1,6 @@
-import { ArrowRight, BadgeCheck, CheckCircle2, ShieldCheck, Sparkles } from 'lucide-react';
+import { ArrowRight, BadgeCheck, CheckCircle2, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import logoImg from '@/assets/logo.jpg';
 
 export default function Landing() {
   return (
@@ -7,8 +8,8 @@ export default function Landing() {
       <section className="mx-auto flex min-h-screen max-w-7xl flex-col px-6 py-10 lg:px-8">
         <header className="flex items-center justify-between rounded-full border border-[#2B2653]/10 bg-white px-5 py-3 shadow-sm">
           <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-full border border-[#2B2653]/15 bg-white shadow-sm">
-              <ShieldCheck className="h-5 w-5 text-[#2B2653]" />
+            <div className="flex h-11 w-11 items-center justify-center rounded-full overflow-hidden border border-[#2B2653]/15 bg-white shadow-sm">
+              <img src={logoImg} alt="RoadGuard AI Logo" className="h-full w-full object-cover" />
             </div>
             <div>
               <p className="text-sm font-semibold tracking-[0.2em] text-[#1C1C1C] uppercase">RoadGuard AI</p>
