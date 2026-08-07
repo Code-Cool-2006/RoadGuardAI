@@ -47,6 +47,12 @@ export default function UndergroundConflictMap() {
   const layersGroupRef = useRef(null);
 
   // Layer Checkbox visibility state (Roads, Water, Telecom, Gas)
+  const [visibleDepts, setVisibleDepts] = useState({
+    roads: true,
+    water: true,
+    telecom: true,
+    gas: true,
+  });
   const [workOrders, setWorkOrders] = useState([]);
   const [conflicts, setConflicts] = useState([]);
   const [selectedConflict, setSelectedConflict] = useState(null);
