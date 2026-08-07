@@ -9,11 +9,34 @@
   font-family: 'Geist Variable', system-ui, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-  color-scheme: dark;
+  color-scheme: light;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  --background: #F8F6F0;
+  --foreground: #1C1C1C;
+  --card: #ffffff;
+  --card-foreground: #1C1C1C;
+  --popover: #ffffff;
+  --popover-foreground: #1C1C1C;
+  --primary: #2B2653;
+  --primary-foreground: #ffffff;
+  --secondary: #EFECE4;
+  --secondary-foreground: #1C1C1C;
+  --muted: #F8F6F0;
+  --muted-foreground: #5A5A5A;
+  --accent: #2B2653;
+  --accent-foreground: #ffffff;
+  --destructive: #ef4444;
+  --border: rgba(43,38,83,0.12);
+  --input: rgba(43,38,83,0.08);
+  --ring: #2B2653;
+  --radius: 0.625rem;
+}
+
+.dark {
+  color-scheme: dark;
   --background: #020617;
   --foreground: #f8fafc;
   --card: #0f172a;
@@ -28,18 +51,17 @@
   --muted-foreground: #94a3b8;
   --accent: #38bdf8;
   --accent-foreground: #0f172a;
-  --destructive: #ef4444;
-  --border: rgba(255,255,255,0.1);
+  --border: rgba(255,255,255,0.12);
   --input: rgba(255,255,255,0.12);
   --ring: #6366f1;
-  --radius: 0.625rem;
 }
 
 body {
   margin: 0;
   min-height: 100vh;
-  background: #F8F6F0;
-  color: #1C1C1C;
+  background: var(--background);
+  color: var(--foreground);
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 #root {

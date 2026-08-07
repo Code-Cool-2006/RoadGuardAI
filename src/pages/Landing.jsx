@@ -23,7 +23,7 @@ export default function Landing() {
         </header>
 
         <div className="flex flex-1 flex-col items-center justify-center text-center">
-          <div className="inline-flex items-center gap-2 rounded-full border border-[#2B2653]/10 bg-white/70 px-3 py-1 text-sm text-[#2B2653] font-medium shadow-sm">
+          <div className="inline-flex items-center gap-2 rounded-full border border-[#2B2653]/10 bg-white/70 px-3 py-1 my-4 text-sm text-[#2B2653] font-medium shadow-sm">
             <Sparkles className="h-4 w-4 text-[#2B2653]" /> Production-style mock experience for road, water, gas, and electricity operations
           </div>
           <h1 className="mt-8 max-w-4xl text-4xl font-semibold tracking-tight sm:text-5xl lg:text-7xl">
