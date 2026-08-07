@@ -17,14 +17,16 @@ import {
   Droplet,
   Radio,
   Road,
-  RefreshCw
+  RefreshCw,
+  Database,
+  Flag,
 } from 'lucide-react';
 
-// Department Color Scheme matching Image 2:
+// Department Color Scheme matching the Pipeline Spec:
+// Water: Cyan (#06B6D4)
+// Telecom: Magenta/Pink (#EC4899)
 // Roads: White (#FFFFFF)
-// Water: Cyan (#00BCD4 / #06B6D4)
-// Telecom: Pink/Magenta (#EC4899 / #E91E63)
-// Gas: Amber/Orange (#F59E0B / #FF9800)
+// Gas: Amber (#F59E0B)
 
 const DEPARTMENTS = {
   roads: { name: 'Roads', color: '#FFFFFF', bg: 'bg-white', stroke: '#FFFFFF', icon: Road },
@@ -33,73 +35,79 @@ const DEPARTMENTS = {
   gas: { name: 'Gas', color: '#F59E0B', bg: 'bg-amber-500', stroke: '#F59E0B', icon: Flame },
 };
 
-// Initial Work Orders with 2 Corridor Footprint Polygons in Belagavi, Karnataka
+// Two distinct overlapping corridor polygons matching Step 2 & Step 4 specification in Belagavi
 const INITIAL_WORK_ORDERS = [
   {
     id: 'wo-101',
-    department: 'roads',
-    title: 'Khanapur Road Resurfacing Corridor',
+    department: 'water',
+    title: 'Water Main Pipeline Corridor (Cyan Polygon)',
     startDate: '2026-08-15',
-    endDate: '2026-08-25',
+    endDate: '2026-08-28',
     bufferM: 15,
     coords: [
-      [15.8420, 74.4920],
-      [15.8485, 74.4985],
-      [15.8540, 74.5045],
-      [15.8590, 74.5100],
+      [15.8450, 74.4960],
+      [15.8495, 74.5005],
+      [15.8540, 74.5050],
+      [15.8580, 74.5100],
     ],
+    // Cyan Polygon (Polygon A)
     polygon: [
-      [15.8415, 74.4910],
-      [15.8430, 74.4930],
-      [15.8600, 74.5110],
-      [15.8585, 74.5090],
+      [15.8450, 74.4960],
+      [15.8510, 74.4950],
+      [15.8550, 74.5015],
+      [15.8520, 74.5070],
+      [15.8440, 74.5030],
     ],
   },
   {
     id: 'wo-102',
-    department: 'water',
-    title: 'College Road Water Main Trenching Corridor',
+    department: 'telecom',
+    title: 'Optical Fiber Ducting Corridor (Magenta Polygon)',
     startDate: '2026-08-18',
-    endDate: '2026-08-28',
+    endDate: '2026-09-05',
     bufferM: 15,
     coords: [
-      [15.8435, 74.4990],
-      [15.8490, 74.5005],
-      [15.8550, 74.5050],
-      [15.8600, 74.5120],
+      [15.8560, 74.4990],
+      [15.8510, 74.5030],
+      [15.8465, 74.5065],
+      [15.8420, 74.5110],
     ],
+    // Magenta / Pink Polygon (Polygon B)
     polygon: [
-      [15.8440, 74.5005],
-      [15.8425, 74.4975],
-      [15.8590, 74.5105],
-      [15.8605, 74.5135],
+      [15.8480, 74.5000],
+      [15.8555, 74.5000],
+      [15.8575, 74.5085],
+      [15.8505, 74.5105],
+      [15.8455, 74.5055],
     ],
   },
 ];
 
-// Pre-computed Conflict Intersection where Polygon 1 & Polygon 2 intersect
+// Exact Overlap Intersection where Polygon 1 & Polygon 2 intersect
 const INITIAL_CONFLICTS = [
   {
     id: 'conflict-1',
     orderAId: 'wo-101',
     orderBId: 'wo-102',
-    deptA: 'roads',
-    deptB: 'water',
-    titleA: 'Khanapur Road Resurfacing',
-    titleB: 'College Road Water Main',
+    deptA: 'water',
+    deptB: 'telecom',
+    titleA: 'Water Main Corridor (Cyan)',
+    titleB: 'Optical Fiber Duct (Magenta)',
     dateGapDays: 3,
     severity: 'high',
-    color: '#EF4444',
-    center: [15.8490, 74.5000], // Exact intersection point where red dot is positioned
+    color: '#EF4444', // Warning Red/Orange overlap
+    center: [15.8505, 74.5025], // Exact intersection center where Red Dot is positioned
+    // Overlapping intersection polygon between Polygon 1 & Polygon 2
     polygon: [
-      [15.8480, 74.4988],
-      [15.8505, 74.4995],
-      [15.8500, 74.5015],
-      [15.8475, 74.5008],
+      [15.8480, 74.5000],
+      [15.8530, 74.5000],
+      [15.8550, 74.5015],
+      [15.8520, 74.5055],
+      [15.8465, 74.5040],
     ],
     unifiedWindow: {
       start: '2026-08-15',
-      end: '2026-08-28',
+      end: '2026-09-05',
     },
     approved: false,
   },
@@ -120,10 +128,10 @@ export default function UndergroundConflictMap() {
   const [workOrders, setWorkOrders] = useState(INITIAL_WORK_ORDERS);
   const [conflicts, setConflicts] = useState(INITIAL_CONFLICTS);
   const [selectedConflict, setSelectedConflict] = useState(INITIAL_CONFLICTS[0]);
-  const [algorithmTab, setAlgorithmTab] = useState(false);
+  const [algorithmTab, setAlgorithmTab] = useState(true); // Open by default matching user image
   const [simulationModal, setSimulationModal] = useState(false);
-  const [simDept, setSimDept] = useState('telecom');
-  const [simTitle, setSimTitle] = useState('Chennamma Circle 5G Fiber Duct');
+  const [simDept, setSimDept] = useState('roads');
+  const [simTitle, setSimTitle] = useState('Khanapur Road Resurfacing Corridor');
 
   // Toggle department checkbox
   const toggleDept = (deptKey) => {
@@ -136,7 +144,7 @@ export default function UndergroundConflictMap() {
 
     // Dark Map Base Layer (CartoDB Dark Matter) - Belagavi City Center, Karnataka, India
     const map = L.map(mapRef.current, {
-      center: [15.8497, 74.4977],
+      center: [15.8505, 74.5025],
       zoom: 15,
       zoomControl: false,
     });
@@ -159,73 +167,77 @@ export default function UndergroundConflictMap() {
     };
   }, []);
 
-  // Render Polylines, 2 Corridor Polygons & Overlap Intersection with Red Dot
+  // Render the 2 Corridor Polygons & Overlap Intersection with the Pulsing Red Dot
   useEffect(() => {
     if (!leafletMap.current || !layersGroupRef.current) return;
     const group = layersGroupRef.current;
     group.clearLayers();
 
-    // 1. Draw the 2 Work Order Corridor Polygons (Rectangles) & Centerlines
+    // 1. Draw the 2 Work Order Corridor Polygons (Cyan Polygon & Magenta Polygon)
     workOrders.forEach((order) => {
       if (!visibleDepts[order.department]) return;
 
       const dept = DEPARTMENTS[order.department];
       if (!dept) return;
 
-      // Draw Corridor Buffer Polygon (Rectangle)
+      // Draw Outer Buffer Polygon with department color and translucent fill
       if (order.polygon) {
         const corridorPolygon = L.polygon(order.polygon, {
           color: dept.color,
           fillColor: dept.color,
-          fillOpacity: 0.22,
-          weight: 2,
-          dashArray: '4, 6',
+          fillOpacity: 0.28,
+          weight: 3,
+          dashArray: '5, 5',
         }).addTo(group);
 
         corridorPolygon.bindTooltip(
-          `<div class="font-sans font-bold text-xs" style="color: ${dept.color}">Corridor Footprint: ${order.title} (${dept.name})</div>`,
+          `<div class="font-sans font-bold text-xs" style="color: ${dept.color}">Corridor Polygon: ${order.title} (${dept.name})</div>`,
           { permanent: false, direction: 'top', className: 'dark-tooltip' }
         );
       }
 
-      // Draw Center Route Polyline
+      // Draw Center Polyline
       const polyline = L.polyline(order.coords, {
         color: dept.color,
         weight: 4,
-        opacity: 0.95,
+        opacity: 0.9,
         lineCap: 'round',
         lineJoin: 'round',
       }).addTo(group);
 
       polyline.bindTooltip(
-        `<div class="font-sans font-bold text-xs" style="color: ${dept.color}">${order.title} (${dept.name})</div>`,
+        `<div class="font-sans font-bold text-xs" style="color: ${dept.color}">${order.title}</div>`,
         { permanent: false, direction: 'top', className: 'dark-tooltip' }
       );
     });
 
-    // 2. Draw Overlap Conflict Polygon & The Pulsing Red Dot at the exact intersection
+    // 2. Draw Overlap Conflict Polygon & Pulsing Red Dot at the exact intersection
     conflicts.forEach((conflict) => {
-      // Check if both departments are visible
       if (!visibleDepts[conflict.deptA] || !visibleDepts[conflict.deptB]) return;
 
       const isSelected = selectedConflict?.id === conflict.id;
 
-      // Draw the Intersection Overlap Polygon
+      // Highlight the Intersection Polygon in bright red/orange
       const overlapPolygon = L.polygon(conflict.polygon, {
-        color: conflict.color,
-        fillColor: conflict.color,
-        fillOpacity: isSelected ? 0.8 : 0.5,
-        weight: isSelected ? 3 : 2,
+        color: '#EF4444',
+        fillColor: '#EF4444',
+        fillOpacity: isSelected ? 0.85 : 0.65,
+        weight: isSelected ? 4 : 3,
         dashArray: conflict.approved ? '4, 4' : undefined,
       }).addTo(group);
 
-      // Create Custom Glowing Red Dot Pin at the exact Intersection Center
+      overlapPolygon.bindTooltip(
+        `<div class="font-sans font-bold text-xs text-rose-400">Intersection Conflict Overlap (Gap: ${conflict.dateGapDays}d)</div>`,
+        { permanent: false, direction: 'top', className: 'dark-tooltip' }
+      );
+
+      // Create Glowing Pulsing Red Dot Marker Pin at the exact intersection center
       const redDotIcon = L.divIcon({
         className: 'custom-conflict-pin',
         html: `
           <div class="relative flex items-center justify-center w-8 h-8 cursor-pointer">
             <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-500 opacity-80"></span>
-            <span class="relative inline-flex rounded-full h-5 w-5 bg-rose-600 border-2 border-white shadow-[0_0_15px_rgba(239,68,68,1)] items-center justify-center text-[10px] font-black text-white">
+            <span class="relative inline-flex rounded-full h-5 w-5 bg-rose-600 border-2 border-white shadow-[0_0_16px_rgba(239,68,68,1)] items-center justify-center text-[10px] font-black text-white">
               !
             </span>
           </div>
@@ -246,7 +258,6 @@ export default function UndergroundConflictMap() {
     });
   }, [visibleDepts, workOrders, conflicts, selectedConflict]);
 
-
   // Approve Unified Scheduling Window
   const handleApproveWindow = (conflictId) => {
     setConflicts((prev) =>
@@ -257,76 +268,18 @@ export default function UndergroundConflictMap() {
     }
   };
 
-  // Clear all work orders from map
+  // Reset to the 2 intersecting polygons
+  const handleResetPolygons = () => {
+    setWorkOrders(INITIAL_WORK_ORDERS);
+    setConflicts(INITIAL_CONFLICTS);
+    setSelectedConflict(INITIAL_CONFLICTS[0]);
+  };
+
+  // Clear map
   const handleClearMap = () => {
     setWorkOrders([]);
     setConflicts([]);
     setSelectedConflict(null);
-  };
-
-  // Simulate / Manually plot work order collision detection
-  const handleSimulateWorkOrder = () => {
-    const newId = `wo-${Date.now()}`;
-    const newOrderA = {
-      id: 'wo-101',
-      department: 'roads',
-      title: 'Khanapur Road & Camp Corridor Resurfacing',
-      startDate: '2026-08-15',
-      endDate: '2026-08-25',
-      bufferM: 15,
-      coords: [
-        [15.8420, 74.4920],
-        [15.8485, 74.4985],
-        [15.8540, 74.5045],
-        [15.8590, 74.5100],
-      ],
-    };
-
-    const newOrderB = {
-      id: newId,
-      department: simDept,
-      title: simTitle,
-      startDate: '2026-08-18',
-      endDate: '2026-08-30',
-      bufferM: 15,
-      coords: [
-        [15.8435, 74.4990],
-        [15.8490, 74.5005],
-        [15.8550, 74.5050],
-        [15.8600, 74.5120],
-      ],
-    };
-
-    // Create new dynamic spatial collision matching existing routes in Belagavi
-    const newConflict = {
-      id: `conflict-${Date.now()}`,
-      orderAId: 'wo-101',
-      orderBId: newId,
-      deptA: 'roads',
-      deptB: simDept,
-      titleA: 'Khanapur Road Resurfacing',
-      titleB: simTitle,
-      dateGapDays: 3,
-      severity: 'high',
-      color: '#EF4444',
-      center: [15.8490, 74.5000],
-      polygon: [
-        [15.8480, 74.4988],
-        [15.8505, 74.4995],
-        [15.8500, 74.5015],
-        [15.8475, 74.5008],
-      ],
-      unifiedWindow: {
-        start: '2026-08-15',
-        end: '2026-08-30',
-      },
-      approved: false,
-    };
-
-    setWorkOrders([newOrderA, newOrderB]);
-    setConflicts([newConflict]);
-    setSelectedConflict(newConflict);
-    setSimulationModal(false);
   };
 
   return (
@@ -341,17 +294,24 @@ export default function UndergroundConflictMap() {
             Belagavi Underground Corridor Map
           </h1>
           <p className="mt-1 max-w-2xl text-sm text-slate-300">
-            Detect spatial route overlaps, calculate temporal date gaps, and approve unified trenching windows.
+            2 Departmental Polygons (Cyan Water & Magenta Telecom) with Red Intersection Overlap.
           </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
+          <button
+            onClick={handleResetPolygons}
+            className="inline-flex items-center gap-2 rounded-xl border border-indigo-500/30 bg-indigo-500/10 px-4 py-2.5 text-xs font-semibold text-indigo-300 hover:bg-indigo-500/20 transition"
+          >
+            <RefreshCw className="h-4 w-4" />
+            Show 2 Polygons
+          </button>
+
           {workOrders.length > 0 && (
             <button
               onClick={handleClearMap}
               className="inline-flex items-center gap-2 rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-2.5 text-xs font-semibold text-rose-300 hover:bg-rose-500/20 transition"
             >
-              <RefreshCw className="h-4 w-4" />
               Clear Map
             </button>
           )}
@@ -363,19 +323,10 @@ export default function UndergroundConflictMap() {
             <Info className="h-4 w-4 text-cyan-400" />
             {algorithmTab ? 'Hide Algorithm Spec' : 'Collision Algorithm Spec'}
           </button>
-
-          <button
-            onClick={() => setSimulationModal(true)}
-            className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-xs font-semibold text-white shadow-lg shadow-indigo-600/30 hover:bg-indigo-500 transition"
-          >
-            <Plus className="h-4 w-4" />
-            Add / Simulate Work Order
-          </button>
         </div>
       </div>
 
-
-      {/* Collision Algorithm Stepper Diagram (Image 1 Specification) */}
+      {/* Collision Algorithm Stepper Diagram (Exact replica of Image 1) */}
       {algorithmTab && (
         <div className="rounded-[24px] border border-slate-800 bg-slate-950 p-6 text-slate-200 shadow-2xl animate-fadeIn">
           <div className="flex items-center justify-between border-b border-slate-800 pb-4 mb-6">
@@ -388,62 +339,119 @@ export default function UndergroundConflictMap() {
             </span>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-4">
-            {/* Step 1 */}
-            <div className="relative rounded-2xl border border-slate-800 bg-slate-900/90 p-5 space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-indigo-400">STEP 1</span>
-                <span className="text-[11px] bg-indigo-500/20 px-2 py-0.5 rounded text-indigo-300 font-mono">buffer_m = 15m</span>
+          <div className="grid gap-4 md:grid-cols-4 items-stretch">
+            {/* Step 1: Buffer */}
+            <div className="relative rounded-2xl border border-slate-800/80 bg-slate-900/90 p-4 flex flex-col justify-between space-y-3">
+              <div className="h-32 w-full rounded-xl bg-slate-950/80 border border-slate-800/60 p-3 flex flex-col items-center justify-center relative overflow-hidden">
+                <div className="absolute top-2 left-1/2 -translate-x-1/2 text-white/40 text-xs font-mono">↓</div>
+                <svg viewBox="0 0 160 80" className="w-full h-full">
+                  <path d="M 15 65 L 50 65 L 110 15 L 145 15" fill="none" stroke="#06B6D4" strokeWidth="22" strokeLinecap="round" opacity="0.35" />
+                  <path d="M 15 65 L 50 65 L 110 15 L 145 15" fill="none" stroke="#FFFFFF" strokeWidth="3" strokeLinecap="round" />
+                </svg>
               </div>
-              <h4 className="font-bold text-white text-sm">Step 1: Buffer</h4>
-              <p className="text-xs text-slate-400 leading-relaxed">
-                Buffer the newly submitted route geometry by 15 meters on each side to create line corridor polygon.
-              </p>
+
+              <div>
+                <h4 className="font-bold text-white text-sm">Step 1: Buffer</h4>
+                <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                  Buffer the new route by buffer_m (default 15m).
+                </p>
+              </div>
+
               <div className="rounded-lg bg-slate-950 p-2.5 text-[11px] font-mono text-cyan-300 border border-slate-800">
                 ST_Buffer(route::geography, buffer_m)::geometry
               </div>
+
+              <div className="hidden md:block absolute -right-3 top-1/2 -translate-y-1/2 z-10 bg-slate-900 border border-slate-700 rounded-full p-1 text-slate-400">
+                <ArrowRight className="h-3.5 w-3.5" />
+              </div>
             </div>
 
-            {/* Step 2 */}
-            <div className="relative rounded-2xl border border-slate-800 bg-slate-900/90 p-5 space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-cyan-400">STEP 2</span>
-                <span className="text-[11px] bg-cyan-500/20 px-2 py-0.5 rounded text-cyan-300 font-mono">PostGIS Query</span>
+            {/* Step 2: Intersect */}
+            <div className="relative rounded-2xl border border-slate-800/80 bg-slate-900/90 p-4 flex flex-col justify-between space-y-3">
+              <div className="h-32 w-full rounded-xl bg-slate-950/80 border border-slate-800/60 p-3 flex items-center justify-center relative overflow-hidden">
+                <svg viewBox="0 0 160 80" className="w-full h-full">
+                  {/* Cyan Polygon */}
+                  <polygon points="25,45 45,15 85,15 105,45 85,75 45,75" fill="#06B6D4" fillOpacity="0.3" stroke="#06B6D4" strokeWidth="2" />
+                  <polygon points="30,45 48,20 82,20 98,45 82,70 48,70" fill="none" stroke="#06B6D4" strokeWidth="1" strokeDasharray="2,2" opacity="0.6" />
+                  {/* Magenta Polygon */}
+                  <polygon points="75,45 95,15 135,15 155,45 135,75 95,75" fill="#EC4899" fillOpacity="0.3" stroke="#EC4899" strokeWidth="2" />
+                </svg>
               </div>
-              <h4 className="font-bold text-white text-sm">Step 2: Intersect</h4>
-              <p className="text-xs text-slate-400 leading-relaxed">
-                Query existing active work orders whose buffered geometries spatially intersect the new corridor.
-              </p>
+
+              <div>
+                <h4 className="font-bold text-white text-sm">Step 2: Intersect</h4>
+                <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                  Query existing work orders whose buffered geometry intersects the new one using ST_Intersects and ST_DWithin.
+                </p>
+              </div>
+
               <div className="rounded-lg bg-slate-950 p-2.5 text-[11px] font-mono text-cyan-300 border border-slate-800">
                 ST_Intersects & ST_DWithin
               </div>
+
+              <div className="hidden md:block absolute -right-3 top-1/2 -translate-y-1/2 z-10 bg-slate-900 border border-slate-700 rounded-full p-1 text-slate-400">
+                <ArrowRight className="h-3.5 w-3.5" />
+              </div>
             </div>
 
-            {/* Step 3 */}
-            <div className="relative rounded-2xl border border-slate-800 bg-slate-900/90 p-5 space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-amber-400">STEP 3</span>
-                <span className="text-[11px] bg-amber-500/20 px-2 py-0.5 rounded text-amber-300 font-mono">Temporal Range</span>
+            {/* Step 3: Temporal Check */}
+            <div className="relative rounded-2xl border border-slate-800/80 bg-slate-900/90 p-4 flex flex-col justify-between space-y-3">
+              <div className="h-32 w-full rounded-xl bg-slate-950/80 border border-slate-800/60 p-3 flex flex-col justify-center relative overflow-hidden">
+                <div className="grid grid-cols-6 gap-1 opacity-20 mb-2">
+                  {[...Array(12)].map((_, i) => (
+                    <div key={i} className="h-2 rounded bg-slate-500" />
+                  ))}
+                </div>
+                <div className="space-y-2">
+                  <div className="h-4 w-24 rounded bg-cyan-500/80 border border-cyan-400 relative">
+                    <span className="absolute -top-3 right-0 text-[9px] text-white">📅</span>
+                  </div>
+                  <div className="h-4 w-28 rounded bg-cyan-500/80 border border-cyan-400 ml-8" />
+                </div>
               </div>
-              <h4 className="font-bold text-white text-sm">Step 3: Temporal Check</h4>
-              <p className="text-xs text-slate-400 leading-relaxed">
-                For each spatial match, calculate the exact date gap between the two [start_date, end_date] ranges.
-              </p>
+
+              <div>
+                <h4 className="font-bold text-white text-sm">Step 3: Temporal Check</h4>
+                <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                  For each spatial match, compute the date gap between the two [start_date, end_date] ranges.
+                </p>
+              </div>
+
               <div className="rounded-lg bg-slate-950 p-2.5 text-[11px] font-mono text-amber-300 border border-slate-800">
                 date_gap = max(0, startB - endA)
               </div>
+
+              <div className="hidden md:block absolute -right-3 top-1/2 -translate-y-1/2 z-10 bg-slate-900 border border-slate-700 rounded-full p-1 text-slate-400">
+                <ArrowRight className="h-3.5 w-3.5" />
+              </div>
             </div>
 
-            {/* Step 4 */}
-            <div className="relative rounded-2xl border border-rose-500/40 bg-rose-950/20 p-5 space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-rose-400">STEP 4</span>
-                <span className="text-[11px] bg-rose-500/20 px-2 py-0.5 rounded text-rose-300 font-mono">Flag & Store</span>
+            {/* Step 4: Flag & Store (Red Outlined Active Card from Screenshot) */}
+            <div className="relative rounded-2xl border-2 border-rose-500/90 bg-slate-900/95 p-4 flex flex-col justify-between space-y-3 shadow-[0_0_25px_rgba(244,63,94,0.2)]">
+              <div className="h-32 w-full rounded-xl bg-slate-950/90 border border-rose-500/30 p-3 flex items-center justify-center relative overflow-hidden">
+                <svg viewBox="0 0 160 80" className="w-full h-full">
+                  {/* Cyan Polygon */}
+                  <polygon points="25,45 45,15 85,15 105,45 85,75 45,75" fill="#06B6D4" fillOpacity="0.2" stroke="#06B6D4" strokeWidth="2" />
+                  {/* Magenta Polygon */}
+                  <polygon points="75,45 95,15 135,15 155,45 135,75 95,75" fill="#EC4899" fillOpacity="0.2" stroke="#EC4899" strokeWidth="2" />
+                  {/* Highlighted Overlap Intersection (Red / Orange) */}
+                  <polygon points="75,45 85,30 95,45 85,60" fill="#F97316" fillOpacity="0.9" stroke="#EF4444" strokeWidth="2.5" />
+                </svg>
+                <div className="absolute bottom-2 left-2 flex items-center gap-1 rounded bg-rose-500/20 px-1.5 py-0.5 border border-rose-500/40">
+                  <Flag className="h-3 w-3 text-rose-400 fill-rose-400" />
+                </div>
+                <div className="absolute bottom-2 right-2 flex items-center gap-1 rounded bg-slate-800 px-1.5 py-0.5 border border-slate-700">
+                  <Database className="h-3 w-3 text-rose-400" />
+                </div>
               </div>
-              <h4 className="font-bold text-white text-sm">Step 4: Flag & Store</h4>
-              <p className="text-xs text-slate-300 leading-relaxed">
-                If date gap ≤ 90 days, flag conflict severity (Red ≤30d, Orange 30-60d, Yellow 60-90d) & render overlap polygon.
-              </p>
+
+              <div>
+                <h4 className="font-bold text-white text-sm">Step 4: Flag & Store</h4>
+                <p className="text-xs text-slate-300 mt-1 leading-relaxed">
+                  If the gap is ≤ 90 days, flag a conflict, assign severity, and store the overlap polygon for map rendering.
+                </p>
+              </div>
+
               <div className="rounded-lg bg-slate-950 p-2.5 text-[11px] font-mono text-rose-300 border border-slate-800">
                 INSERT INTO conflicts (...)
               </div>
@@ -454,18 +462,16 @@ export default function UndergroundConflictMap() {
 
       {/* Main Interactive Map & Triage Layout */}
       <div className="grid gap-6 xl:grid-cols-[1fr_420px]">
-
         {/* MAP CONTAINER CARD */}
         <div className="relative rounded-[24px] border border-slate-800 bg-slate-950 overflow-hidden min-h-[580px] shadow-2xl flex flex-col">
-
           {/* Leaflet DOM container */}
           <div ref={mapRef} className="absolute inset-0 z-0 h-full w-full bg-slate-950" />
 
-          {/* Top Left Floating Layer Checkbox Overlay (Matching Image 2 Specification) */}
-          <div className="absolute top-4 left-4 z-10 w-48 rounded-2xl border border-slate-800/90 bg-slate-950/90 p-4 shadow-2xl backdrop-blur-md text-white space-y-3">
+          {/* Top Left Floating Layer Checkbox Overlay */}
+          <div className="absolute top-4 left-4 z-10 w-52 rounded-2xl border border-slate-800/90 bg-slate-950/90 p-4 shadow-2xl backdrop-blur-md text-white space-y-3">
             <div className="flex items-center gap-2 border-b border-slate-800 pb-2 text-xs font-bold uppercase tracking-wider text-slate-300">
               <Layers className="h-4 w-4 text-indigo-400" />
-              <span>Layers</span>
+              <span>Corridor Layers</span>
             </div>
 
             <div className="space-y-2 text-xs">
@@ -504,25 +510,22 @@ export default function UndergroundConflictMap() {
             <span>{conflicts.length} Active Conflict Zones</span>
           </div>
 
-          {/* Bottom Left Legend for Severity Overlaps */}
+          {/* Bottom Left Legend for 2 Polygons & Intersection Red Dot */}
           <div className="absolute bottom-4 left-4 z-10 flex flex-wrap items-center gap-3 rounded-xl border border-slate-800/90 bg-slate-950/90 px-4 py-2.5 text-xs text-slate-300 backdrop-blur-md">
-            <span className="font-semibold text-white text-[11px] uppercase tracking-wider">Overlap Severity:</span>
-            <span className="flex items-center gap-1.5 text-xs font-medium text-rose-400">
-              <span className="h-2.5 w-2.5 rounded-full bg-rose-500" /> High (&lt;30d)
+            <span className="flex items-center gap-1.5 text-xs font-medium text-cyan-300">
+              <span className="h-3 w-3 rounded-sm bg-cyan-500/40 border border-cyan-400" /> Polygon A (Water)
             </span>
-            <span className="flex items-center gap-1.5 text-xs font-medium text-amber-400">
-              <span className="h-2.5 w-2.5 rounded-full bg-amber-500" /> Medium (30-60d)
+            <span className="flex items-center gap-1.5 text-xs font-medium text-pink-300">
+              <span className="h-3 w-3 rounded-sm bg-pink-500/40 border border-pink-400" /> Polygon B (Telecom)
             </span>
-            <span className="flex items-center gap-1.5 text-xs font-medium text-yellow-400">
-              <span className="h-2.5 w-2.5 rounded-full bg-yellow-400" /> Low (60-90d)
+            <span className="flex items-center gap-1.5 text-xs font-bold text-rose-400">
+              <span className="h-3 w-3 rounded-full bg-rose-600 animate-ping" /> Intersection (Red Dot Pin)
             </span>
           </div>
-
         </div>
 
-        {/* RIGHT SIDEBAR: ACTIONABLE TRIAGE & UNIFIED SCHEDULING (Matching Image 2 Specification) */}
+        {/* RIGHT SIDEBAR: ACTIONABLE TRIAGE & UNIFIED SCHEDULING */}
         <div className="space-y-6">
-
           {/* CONFLICT TRIAGE DETAILS CARD */}
           <div className="rounded-[24px] border border-slate-800 bg-slate-900/90 p-6 text-slate-200 shadow-2xl backdrop-blur-md space-y-6">
             <div className="flex items-center justify-between border-b border-slate-800 pb-4">
@@ -546,146 +549,119 @@ export default function UndergroundConflictMap() {
 
             {selectedConflict ? (
               <div className="space-y-6">
-
                 {/* 1. Involved Work Orders & Date Gap */}
                 <div className="space-y-3">
                   <div className="flex items-center justify-between text-xs text-slate-400">
-                    <span className="font-semibold uppercase tracking-wider">Involved Work Orders</span>
+                    <span className="font-semibold uppercase tracking-wider">Involved Corridor Polygons</span>
                     <span className="font-mono text-slate-300">
                       Date Gap: <strong className="text-amber-400 font-bold">{selectedConflict.dateGapDays} Days</strong>
                     </span>
                   </div>
 
                   <div className="grid gap-3">
-                    {/* Order A */}
+                    {/* Order A (Cyan) */}
                     <div className="rounded-xl border border-slate-800 bg-slate-950/80 p-3.5 flex items-start gap-3">
                       <div
                         className="mt-1 h-3 w-3 rounded-full shrink-0"
-                        style={{ backgroundColor: DEPARTMENTS[selectedConflict.deptA]?.color || '#FFF' }}
+                        style={{ backgroundColor: DEPARTMENTS[selectedConflict.deptA]?.color || '#06B6D4' }}
                       />
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between">
                           <p className="text-xs font-bold text-white truncate">{selectedConflict.titleA}</p>
-                          <span className="text-[10px] uppercase font-bold text-slate-400 bg-slate-800 px-2 py-0.5 rounded">
+                          <span className="text-[10px] uppercase font-bold text-cyan-400 bg-cyan-950/80 border border-cyan-800 px-2 py-0.5 rounded">
                             {selectedConflict.deptA}
                           </span>
                         </div>
-                        <p className="text-[11px] text-slate-400 mt-1 font-mono">Order ID: {selectedConflict.orderAId}</p>
+                        <p className="text-[11px] text-slate-400 mt-1 flex items-center gap-1 font-mono">
+                          <Calendar className="h-3 w-3 text-slate-500" />
+                          2026-08-15 to 2026-08-28
+                        </p>
                       </div>
                     </div>
 
-                    {/* Order B */}
+                    {/* Order B (Magenta) */}
                     <div className="rounded-xl border border-slate-800 bg-slate-950/80 p-3.5 flex items-start gap-3">
                       <div
                         className="mt-1 h-3 w-3 rounded-full shrink-0"
-                        style={{ backgroundColor: DEPARTMENTS[selectedConflict.deptB]?.color || '#FFF' }}
+                        style={{ backgroundColor: DEPARTMENTS[selectedConflict.deptB]?.color || '#EC4899' }}
                       />
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between">
                           <p className="text-xs font-bold text-white truncate">{selectedConflict.titleB}</p>
-                          <span className="text-[10px] uppercase font-bold text-slate-400 bg-slate-800 px-2 py-0.5 rounded">
+                          <span className="text-[10px] uppercase font-bold text-pink-400 bg-pink-950/80 border border-pink-800 px-2 py-0.5 rounded">
                             {selectedConflict.deptB}
                           </span>
                         </div>
-                        <p className="text-[11px] text-slate-400 mt-1 font-mono">Order ID: {selectedConflict.orderBId}</p>
+                        <p className="text-[11px] text-slate-400 mt-1 flex items-center gap-1 font-mono">
+                          <Calendar className="h-3 w-3 text-slate-500" />
+                          2026-08-18 to 2026-09-05
+                        </p>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                {/* 2. Visualizing Overlaps Spec Box */}
-                <div className="rounded-xl border border-slate-800 bg-slate-950/60 p-4 space-y-2">
-                  <div className="flex items-center gap-2 text-xs font-bold text-white">
-                    <Layers className="h-4 w-4 text-indigo-400" />
-                    <span>Visualizing Overlaps</span>
-                  </div>
-                  <p className="text-xs text-slate-300 leading-relaxed">
-                    Red (&lt;30d), Orange (30-60d), and Yellow (60-90d) polygons rendered directly over intersecting base route corridors.
-                  </p>
-                </div>
-
-                {/* 3. Unified Scheduling V1 Card (Image 2 Specification) */}
-                <div className="rounded-2xl border border-indigo-500/30 bg-gradient-to-b from-indigo-950/40 to-slate-950 p-5 space-y-4 shadow-xl">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-xs font-bold text-indigo-300">
-                      <Calendar className="h-4 w-4" />
-                      <span>Unified Scheduling V1</span>
-                    </div>
-                    {selectedConflict.approved ? (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/20 px-2.5 py-0.5 text-[10px] font-bold text-emerald-300 border border-emerald-500/30">
-                        <CheckCircle2 className="h-3 w-3" /> Approved
-                      </span>
-                    ) : (
-                      <span className="rounded-full bg-amber-500/20 px-2.5 py-0.5 text-[10px] font-bold text-amber-300 border border-amber-500/30">
-                        Recommendation
-                      </span>
-                    )}
+                {/* 2. Unified Trenching Window Recommendation */}
+                <div className="rounded-2xl border border-indigo-500/30 bg-indigo-950/30 p-4 space-y-3">
+                  <div className="flex items-center gap-2 text-xs font-bold text-indigo-300">
+                    <Sparkles className="h-4 w-4 text-indigo-400" />
+                    <span>AI Recommendation: Unified Trenching Window</span>
                   </div>
 
                   <p className="text-xs text-slate-300 leading-relaxed">
-                    Recommends a single combined trenching window across conflicting orders:
+                    Merge work schedules into a single trench excavation window to prevent digging the road twice and save municipal expenditure.
                   </p>
 
-                  <div className="rounded-xl border border-indigo-500/20 bg-slate-950 p-3 flex items-center justify-between text-xs font-mono text-white">
-                    <div>
-                      <span className="text-[10px] text-slate-400 block uppercase font-sans">Start Window</span>
-                      <strong>{selectedConflict.unifiedWindow.start}</strong>
-                    </div>
-                    <ArrowRight className="h-4 w-4 text-indigo-400" />
-                    <div>
-                      <span className="text-[10px] text-slate-400 block uppercase font-sans">End Window</span>
-                      <strong>{selectedConflict.unifiedWindow.end}</strong>
-                    </div>
+                  <div className="rounded-xl bg-slate-950/90 border border-slate-800 p-3 flex items-center justify-between font-mono text-xs">
+                    <span className="text-slate-400">Proposed Window:</span>
+                    <span className="text-emerald-400 font-bold">
+                      {selectedConflict.unifiedWindow.start} → {selectedConflict.unifiedWindow.end}
+                    </span>
                   </div>
-
-                  <p className="text-[11px] text-slate-400 italic">
-                    Note: V1 heuristic — combined earliest-to-latest window, not an optimized schedule.
-                  </p>
 
                   <button
                     onClick={() => handleApproveWindow(selectedConflict.id)}
                     disabled={selectedConflict.approved}
-                    className={`w-full py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition shadow-lg ${selectedConflict.approved
+                    className={`w-full py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition shadow-lg ${
+                      selectedConflict.approved
                         ? 'bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 cursor-default'
                         : 'bg-indigo-600 text-white hover:bg-indigo-500 shadow-indigo-600/30'
-                      }`}
+                    }`}
                   >
                     {selectedConflict.approved ? (
                       <>
-                        <CheckCircle2 className="h-4 w-4" /> Unified Trenching Approved
+                        <CheckCircle2 className="h-4 w-4" /> Window Approved & Synchronized
                       </>
                     ) : (
                       <>
-                        <CheckCircle2 className="h-4 w-4" /> Approve & Combine Window
+                        <CheckCircle2 className="h-4 w-4" /> Approve Unified Window
                       </>
                     )}
                   </button>
                 </div>
-
               </div>
             ) : (
               <div className="py-10 px-4 text-center space-y-3">
                 <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl border border-indigo-500/20 bg-indigo-500/10 text-indigo-400">
                   <MapPin className="h-6 w-6" />
                 </div>
-                <h4 className="text-sm font-bold text-white">No Corridors Plotted</h4>
+                <h4 className="text-sm font-bold text-white">No Active Conflict Selected</h4>
                 <p className="text-xs text-slate-400 max-w-xs mx-auto leading-relaxed">
-                  The Belagavi map is ready. Click <strong>"Add / Simulate Work Order"</strong> above to plot municipal corridors and detect underground collisions.
+                  Click on the <strong>Red Intersection Dot Pin</strong> or corridor polygons on the map to review details.
                 </p>
                 <button
-                  onClick={() => setSimulationModal(true)}
+                  onClick={handleResetPolygons}
                   className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-xs font-bold text-white hover:bg-indigo-500 transition shadow-lg shadow-indigo-600/20"
                 >
-                  <Plus className="h-3.5 w-3.5" /> Add Work Order
+                  <RefreshCw className="h-3.5 w-3.5" /> Show 2 Polygons
                 </button>
               </div>
             )}
-
           </div>
 
           {/* ALL CONFLICTS QUICK LIST */}
           <div className="rounded-[24px] border border-slate-800 bg-slate-900/90 p-5 text-slate-200 space-y-3">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">All Flagged Overlaps ({conflicts.length})</h4>
+            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">Flagged Overlaps ({conflicts.length})</h4>
             <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
               {conflicts.map((c) => {
                 const isSelected = selectedConflict?.id === c.id;
@@ -698,10 +674,11 @@ export default function UndergroundConflictMap() {
                         leafletMap.current.flyTo(c.center, 16);
                       }
                     }}
-                    className={`w-full text-left p-3 rounded-xl border text-xs transition flex items-center justify-between ${isSelected
+                    className={`w-full text-left p-3 rounded-xl border text-xs transition flex items-center justify-between ${
+                      isSelected
                         ? 'border-indigo-500 bg-indigo-500/10 text-white'
                         : 'border-slate-800 bg-slate-950/60 text-slate-300 hover:bg-slate-800/50'
-                      }`}
+                    }`}
                   >
                     <div>
                       <div className="font-bold flex items-center gap-2">
@@ -722,75 +699,8 @@ export default function UndergroundConflictMap() {
               })}
             </div>
           </div>
-
         </div>
       </div>
-
-      {/* SIMULATE WORK ORDER MODAL */}
-      {simulationModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4">
-          <div className="w-full max-w-md rounded-2xl border border-slate-800 bg-slate-900 p-6 text-slate-200 space-y-4 shadow-2xl">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-              <h3 className="text-base font-bold text-white flex items-center gap-2">
-                <Plus className="h-5 w-5 text-indigo-400" />
-                Simulate Work Order Collision
-              </h3>
-              <button onClick={() => setSimulationModal(false)} className="text-slate-400 hover:text-white text-xs font-bold">
-                ✕
-              </button>
-            </div>
-
-            <div className="space-y-3 text-xs">
-              <div>
-                <label className="block text-slate-400 mb-1 font-semibold">Work Order Title</label>
-                <input
-                  type="text"
-                  value={simTitle}
-                  onChange={(e) => setSimTitle(e.target.value)}
-                  className="w-full rounded-xl border border-slate-800 bg-slate-950 px-3.5 py-2.5 text-xs text-white"
-                />
-              </div>
-
-              <div>
-                <label className="block text-slate-400 mb-1 font-semibold">Department Tag</label>
-                <select
-                  value={simDept}
-                  onChange={(e) => setSimDept(e.target.value)}
-                  className="w-full rounded-xl border border-slate-800 bg-slate-950 px-3.5 py-2.5 text-xs text-white"
-                >
-                  <option value="roads">Roads (White)</option>
-                  <option value="water">Water (Cyan)</option>
-                  <option value="telecom">Telecom (Magenta)</option>
-                  <option value="gas">Gas (Amber)</option>
-                </select>
-              </div>
-
-              <div className="rounded-xl border border-slate-800 bg-slate-950 p-3 space-y-1 text-[11px] text-slate-400">
-                <p className="font-semibold text-slate-300">Automated Pipeline Actions:</p>
-                <p>1. ST_Buffer route by 15 meters</p>
-                <p>2. Query ST_Intersects against existing routes</p>
-                <p>3. Calculate date gap (1 day gap detected)</p>
-                <p>4. Flag Red High Severity overlap polygon on map</p>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-end gap-3 pt-2">
-              <button
-                onClick={() => setSimulationModal(false)}
-                className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleSimulateWorkOrder}
-                className="px-4 py-2 rounded-xl text-xs font-semibold bg-indigo-600 text-white hover:bg-indigo-500 shadow-lg shadow-indigo-600/30"
-              >
-                Run Collision Query
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
