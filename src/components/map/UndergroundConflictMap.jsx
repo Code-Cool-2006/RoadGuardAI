@@ -622,11 +622,10 @@ export default function UndergroundConflictMap() {
                   <button
                     onClick={() => handleApproveWindow(selectedConflict.id)}
                     disabled={selectedConflict.approved}
-                    className={`w-full py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition shadow-lg ${
-                      selectedConflict.approved
+                    className={`w-full py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition shadow-lg ${selectedConflict.approved
                         ? 'bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 cursor-default'
                         : 'bg-indigo-600 text-white hover:bg-indigo-500 shadow-indigo-600/30'
-                    }`}
+                      }`}
                   >
                     {selectedConflict.approved ? (
                       <>
@@ -674,11 +673,10 @@ export default function UndergroundConflictMap() {
                         leafletMap.current.flyTo(c.center, 16);
                       }
                     }}
-                    className={`w-full text-left p-3 rounded-xl border text-xs transition flex items-center justify-between ${
-                      isSelected
+                    className={`w-full text-left p-3 rounded-xl border text-xs transition flex items-center justify-between ${isSelected
                         ? 'border-indigo-500 bg-indigo-500/10 text-white'
                         : 'border-slate-800 bg-slate-950/60 text-slate-300 hover:bg-slate-800/50'
-                    }`}
+                      }`}
                   >
                     <div>
                       <div className="font-bold flex items-center gap-2">
