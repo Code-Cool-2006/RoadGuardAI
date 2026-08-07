@@ -33,63 +33,67 @@ const DEPARTMENTS = {
   gas: { name: 'Gas', color: '#F59E0B', bg: 'bg-amber-500', stroke: '#F59E0B', icon: Flame },
 };
 
-// Initial Work Orders with real spatial coordinates (centered in San Francisco / Downtown Corridor)
+// Initial Work Orders with real spatial coordinates (centered in Belagavi, Karnataka, India)
 const INITIAL_WORK_ORDERS = [
   {
     id: 'wo-101',
     department: 'roads',
-    title: 'Harbor Avenue Resurfacing',
+    title: 'Khanapur Road & Camp Corridor Resurfacing',
     startDate: '2026-08-15',
     endDate: '2026-08-25',
     bufferM: 15,
     coords: [
-      [37.7749, -122.4194],
-      [37.7780, -122.4150],
-      [37.7810, -122.4100],
+      [15.8420, 74.4920],
+      [15.8485, 74.4985],
+      [15.8540, 74.5045],
+      [15.8590, 74.5100],
     ],
   },
   {
     id: 'wo-102',
     department: 'water',
-    title: 'Main Pipeline Trenching & Valve Replacement',
+    title: 'College Road & RPD Cross Water Main Overhaul',
     startDate: '2026-08-18',
     endDate: '2026-08-28',
     bufferM: 15,
     coords: [
-      [37.7720, -122.4180],
-      [37.7770, -122.4160],
-      [37.7830, -122.4120],
+      [15.8435, 74.4990],
+      [15.8490, 74.5005],
+      [15.8550, 74.5050],
+      [15.8600, 74.5120],
     ],
   },
   {
     id: 'wo-103',
     department: 'telecom',
-    title: 'Fiber Optic Underground Cable Duct',
+    title: 'Chennamma Circle to Bogarves 5G Optical Fiber Duct',
     startDate: '2026-09-01',
     endDate: '2026-09-12',
     bufferM: 15,
     coords: [
-      [37.7800, -122.4220],
-      [37.7765, -122.4155],
-      [37.7730, -122.4090],
+      [15.8580, 74.5020],
+      [15.8550, 74.5060],
+      [15.8510, 74.5010],
+      [15.8450, 74.4960],
     ],
   },
   {
     id: 'wo-104',
     department: 'gas',
-    title: 'High-Pressure Gas Line Inspection & Dig',
+    title: 'Congress Road & Tilakwadi PNG Pipeline Grid',
     startDate: '2026-08-20',
     endDate: '2026-09-05',
     bufferM: 15,
     coords: [
-      [37.7710, -122.4130],
-      [37.7768, -122.4158],
-      [37.7820, -122.4185],
+      [15.8400, 74.4970],
+      [15.8460, 74.5000],
+      [15.8520, 74.5035],
+      [15.8570, 74.5075],
     ],
   },
 ];
 
-// Pre-computed Conflict Zones matching collision algorithm
+// Pre-computed Conflict Zones matching PostGIS collision algorithm in Belagavi
 const INITIAL_CONFLICTS = [
   {
     id: 'conflict-1',
@@ -97,17 +101,17 @@ const INITIAL_CONFLICTS = [
     orderBId: 'wo-102',
     deptA: 'roads',
     deptB: 'water',
-    titleA: 'Harbor Avenue Resurfacing',
-    titleB: 'Main Pipeline Trenching',
+    titleA: 'Khanapur Road Resurfacing',
+    titleB: 'College Road Water Main Overhaul',
     dateGapDays: 3,
     severity: 'high', // <30 days
     color: '#EF4444', // Red
-    center: [37.7767, -122.4158],
+    center: [15.8490, 74.5000],
     polygon: [
-      [37.7760, -122.4165],
-      [37.7774, -122.4162],
-      [37.7772, -122.4150],
-      [37.7758, -122.4153],
+      [15.8480, 74.4988],
+      [15.8505, 74.4995],
+      [15.8500, 74.5015],
+      [15.8475, 74.5008],
     ],
     unifiedWindow: {
       start: '2026-08-15',
@@ -118,52 +122,53 @@ const INITIAL_CONFLICTS = [
   {
     id: 'conflict-2',
     orderAId: 'wo-102',
-    orderBId: 'wo-104',
+    orderBId: 'wo-103',
     deptA: 'water',
-    deptB: 'gas',
-    titleA: 'Main Pipeline Trenching',
-    titleB: 'Gas Line Inspection & Dig',
+    deptB: 'telecom',
+    titleA: 'College Road Water Main',
+    titleB: 'Chennamma Circle Optical Fiber',
     dateGapDays: 2,
     severity: 'high', // <30 days
     color: '#EF4444', // Red
-    center: [37.7768, -122.4158],
+    center: [15.8555, 74.5055],
     polygon: [
-      [37.7762, -122.4162],
-      [37.7775, -122.4155],
-      [37.7770, -122.4148],
-      [37.7759, -122.4154],
+      [15.8545, 74.5042],
+      [15.8568, 74.5048],
+      [15.8562, 74.5070],
+      [15.8539, 74.5064],
     ],
     unifiedWindow: {
       start: '2026-08-18',
-      end: '2026-09-05',
+      end: '2026-09-12',
     },
     approved: false,
   },
   {
     id: 'conflict-3',
-    orderAId: 'wo-103',
+    orderAId: 'wo-101',
     orderBId: 'wo-104',
-    deptA: 'telecom',
+    deptA: 'roads',
     deptB: 'gas',
-    titleA: 'Fiber Optic Cable Duct',
-    titleB: 'Gas Line Inspection',
-    dateGapDays: 45,
+    titleA: 'Khanapur Road Resurfacing',
+    titleB: 'Congress Road PNG Pipeline',
+    dateGapDays: 35,
     severity: 'medium', // 30-60 days
     color: '#F97316', // Orange
-    center: [37.7765, -122.4155],
+    center: [15.8460, 74.4995],
     polygon: [
-      [37.7763, -122.4160],
-      [37.7769, -122.4156],
-      [37.7766, -122.4149],
-      [37.7760, -122.4153],
+      [15.8450, 74.4985],
+      [15.8472, 74.4990],
+      [15.8468, 74.5012],
+      [15.8446, 74.5007],
     ],
     unifiedWindow: {
-      start: '2026-08-20',
-      end: '2026-09-12',
+      start: '2026-08-15',
+      end: '2026-09-20',
     },
     approved: false,
   },
 ];
+
 
 export default function UndergroundConflictMap() {
   const mapRef = useRef(null);
@@ -194,12 +199,13 @@ export default function UndergroundConflictMap() {
   useEffect(() => {
     if (!mapRef.current || leafletMap.current) return;
 
-    // Dark Map Base Layer (CartoDB Dark Matter)
+    // Dark Map Base Layer (CartoDB Dark Matter) - Belagavi City Center, Karnataka, India
     const map = L.map(mapRef.current, {
-      center: [37.7765, -122.4155],
+      center: [15.8497, 74.4977],
       zoom: 15,
       zoomControl: false,
     });
+
 
     L.control.zoom({ position: 'bottomright' }).addTo(map);
 
@@ -309,15 +315,15 @@ export default function UndergroundConflictMap() {
       endDate: '2026-08-30',
       bufferM: 15,
       coords: [
-        [37.7750, -122.4200],
-        [37.7772, -122.4152],
-        [37.7795, -122.4110],
+        [15.8450, 74.4965],
+        [15.8500, 74.5005],
+        [15.8550, 74.5060],
       ],
     };
 
     INITIAL_WORK_ORDERS.push(newOrder);
 
-    // Create new dynamic spatial collision matching existing routes
+    // Create new dynamic spatial collision matching existing routes in Belagavi
     const newConflict = {
       id: `conflict-${Date.now()}`,
       orderAId: newId,
@@ -325,16 +331,16 @@ export default function UndergroundConflictMap() {
       deptA: simDept,
       deptB: 'roads',
       titleA: simTitle,
-      titleB: 'Harbor Avenue Resurfacing',
+      titleB: 'Khanapur Road & Camp Resurfacing',
       dateGapDays: 1,
       severity: 'high',
       color: '#EF4444',
-      center: [37.7772, -122.4152],
+      center: [15.8500, 74.5005],
       polygon: [
-        [37.7766, -122.4158],
-        [37.7778, -122.4155],
-        [37.7774, -122.4146],
-        [37.7762, -122.4149],
+        [15.8492, 74.4998],
+        [15.8512, 74.5002],
+        [15.8508, 74.5020],
+        [15.8488, 74.5015],
       ],
       unifiedWindow: {
         start: '2026-08-15',
