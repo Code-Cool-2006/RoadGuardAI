@@ -18,15 +18,7 @@ import {
   Radio,
   Road,
   RefreshCw,
-  Database,
-  Flag,
 } from 'lucide-react';
-
-// Department Color Scheme matching the Pipeline Spec:
-// Water: Cyan (#06B6D4)
-// Telecom: Magenta/Pink (#EC4899)
-// Roads: White (#FFFFFF)
-// Gas: Amber (#F59E0B)
 
 const DEPARTMENTS = {
   roads: { name: 'Roads', color: '#FFFFFF', bg: 'bg-white', stroke: '#FFFFFF', icon: Road },
@@ -35,12 +27,12 @@ const DEPARTMENTS = {
   gas: { name: 'Gas', color: '#F59E0B', bg: 'bg-amber-500', stroke: '#F59E0B', icon: Flame },
 };
 
-// Two distinct overlapping corridor polygons matching Step 2 & Step 4 specification in Belagavi
+// 2 Corridor Footprint Polygons (Polygon 1 & Polygon 2) in Belagavi, Karnataka
 const INITIAL_WORK_ORDERS = [
   {
     id: 'wo-101',
     department: 'water',
-    title: 'Water Main Pipeline Corridor (Cyan Polygon)',
+    title: 'Water Main Trenching Corridor (Polygon A)',
     startDate: '2026-08-15',
     endDate: '2026-08-28',
     bufferM: 15,
@@ -50,7 +42,7 @@ const INITIAL_WORK_ORDERS = [
       [15.8540, 74.5050],
       [15.8580, 74.5100],
     ],
-    // Cyan Polygon (Polygon A)
+    // Cyan Polygon (Polygon 1)
     polygon: [
       [15.8450, 74.4960],
       [15.8510, 74.4950],
@@ -62,7 +54,7 @@ const INITIAL_WORK_ORDERS = [
   {
     id: 'wo-102',
     department: 'telecom',
-    title: 'Optical Fiber Ducting Corridor (Magenta Polygon)',
+    title: 'Optical Fiber Ducting Corridor (Polygon B)',
     startDate: '2026-08-18',
     endDate: '2026-09-05',
     bufferM: 15,
@@ -72,7 +64,7 @@ const INITIAL_WORK_ORDERS = [
       [15.8465, 74.5065],
       [15.8420, 74.5110],
     ],
-    // Magenta / Pink Polygon (Polygon B)
+    // Magenta / Pink Polygon (Polygon 2)
     polygon: [
       [15.8480, 74.5000],
       [15.8555, 74.5000],
@@ -83,7 +75,7 @@ const INITIAL_WORK_ORDERS = [
   },
 ];
 
-// Exact Overlap Intersection where Polygon 1 & Polygon 2 intersect
+// Exact Overlap Intersection Polygon where Polygon 1 & Polygon 2 cross + Red Dot
 const INITIAL_CONFLICTS = [
   {
     id: 'conflict-1',
@@ -91,13 +83,12 @@ const INITIAL_CONFLICTS = [
     orderBId: 'wo-102',
     deptA: 'water',
     deptB: 'telecom',
-    titleA: 'Water Main Corridor (Cyan)',
-    titleB: 'Optical Fiber Duct (Magenta)',
+    titleA: 'Water Main Corridor (Polygon A)',
+    titleB: 'Optical Fiber Duct (Polygon B)',
     dateGapDays: 3,
     severity: 'high',
-    color: '#EF4444', // Warning Red/Orange overlap
-    center: [15.8505, 74.5025], // Exact intersection center where Red Dot is positioned
-    // Overlapping intersection polygon between Polygon 1 & Polygon 2
+    color: '#EF4444',
+    center: [15.8505, 74.5025], // Exact intersection point where Red Dot is placed
     polygon: [
       [15.8480, 74.5000],
       [15.8530, 74.5000],
@@ -128,10 +119,9 @@ export default function UndergroundConflictMap() {
   const [workOrders, setWorkOrders] = useState(INITIAL_WORK_ORDERS);
   const [conflicts, setConflicts] = useState(INITIAL_CONFLICTS);
   const [selectedConflict, setSelectedConflict] = useState(INITIAL_CONFLICTS[0]);
-  const [algorithmTab, setAlgorithmTab] = useState(true); // Open by default matching user image
   const [simulationModal, setSimulationModal] = useState(false);
-  const [simDept, setSimDept] = useState('roads');
-  const [simTitle, setSimTitle] = useState('Khanapur Road Resurfacing Corridor');
+  const [simDept, setSimDept] = useState('gas');
+  const [simTitle, setSimTitle] = useState('PNG Gas Main Trenching');
 
   // Toggle department checkbox
   const toggleDept = (deptKey) => {
@@ -167,13 +157,13 @@ export default function UndergroundConflictMap() {
     };
   }, []);
 
-  // Render the 2 Corridor Polygons & Overlap Intersection with the Pulsing Red Dot
+  // Render 2 Corridor Polygons & Overlap Intersection with the Pulsing Red Dot directly on the map
   useEffect(() => {
     if (!leafletMap.current || !layersGroupRef.current) return;
     const group = layersGroupRef.current;
     group.clearLayers();
 
-    // 1. Draw the 2 Work Order Corridor Polygons (Cyan Polygon & Magenta Polygon)
+    // 1. Draw the 2 Corridor Polygons (Polygon 1 Cyan & Polygon 2 Magenta) + Centerlines
     workOrders.forEach((order) => {
       if (!visibleDepts[order.department]) return;
 
@@ -185,18 +175,18 @@ export default function UndergroundConflictMap() {
         const corridorPolygon = L.polygon(order.polygon, {
           color: dept.color,
           fillColor: dept.color,
-          fillOpacity: 0.28,
+          fillOpacity: 0.25,
           weight: 3,
           dashArray: '5, 5',
         }).addTo(group);
 
         corridorPolygon.bindTooltip(
-          `<div class="font-sans font-bold text-xs" style="color: ${dept.color}">Corridor Polygon: ${order.title} (${dept.name})</div>`,
+          `<div class="font-sans font-bold text-xs" style="color: ${dept.color}">Corridor Footprint: ${order.title} (${dept.name})</div>`,
           { permanent: false, direction: 'top', className: 'dark-tooltip' }
         );
       }
 
-      // Draw Center Polyline
+      // Draw Center Route Polyline
       const polyline = L.polyline(order.coords, {
         color: dept.color,
         weight: 4,
@@ -282,19 +272,48 @@ export default function UndergroundConflictMap() {
     setSelectedConflict(null);
   };
 
+  // Simulate new corridor
+  const handleSimulateWorkOrder = () => {
+    const newId = `wo-${Date.now()}`;
+    const newOrder = {
+      id: newId,
+      department: simDept,
+      title: simTitle,
+      startDate: '2026-08-20',
+      endDate: '2026-09-10',
+      bufferM: 15,
+      coords: [
+        [15.8400, 74.4970],
+        [15.8460, 74.5000],
+        [15.8520, 74.5035],
+        [15.8570, 74.5075],
+      ],
+      polygon: [
+        [15.8420, 74.4980],
+        [15.8480, 74.4990],
+        [15.8530, 74.5045],
+        [15.8560, 74.5065],
+        [15.8440, 74.5010],
+      ],
+    };
+
+    setWorkOrders((prev) => [...prev, newOrder]);
+    setSimulationModal(false);
+  };
+
   return (
     <div className="space-y-6">
-      {/* Page Title Banner */}
+      {/* Top Header Banner */}
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between rounded-[24px] border border-slate-800 bg-slate-900/80 p-6 shadow-2xl backdrop-blur-md">
         <div>
           <div className="inline-flex items-center gap-2 rounded-full border border-indigo-500/30 bg-indigo-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-indigo-300">
             <Sparkles className="h-3.5 w-3.5" /> Spatial Collision & Trenching Engine
           </div>
           <h1 className="mt-2 text-2xl font-bold text-white sm:text-3xl">
-            Belagavi Underground Corridor Map
+            Underground Corridor Conflict Map
           </h1>
           <p className="mt-1 max-w-2xl text-sm text-slate-300">
-            2 Departmental Polygons (Cyan Water & Magenta Telecom) with Red Intersection Overlap.
+            Real-time PostGIS buffer collision detection across municipal infrastructure corridors (Belagavi, Karnataka).
           </p>
         </div>
 
@@ -304,7 +323,7 @@ export default function UndergroundConflictMap() {
             className="inline-flex items-center gap-2 rounded-xl border border-indigo-500/30 bg-indigo-500/10 px-4 py-2.5 text-xs font-semibold text-indigo-300 hover:bg-indigo-500/20 transition"
           >
             <RefreshCw className="h-4 w-4" />
-            Show 2 Polygons
+            Reset 2 Polygons
           </button>
 
           {workOrders.length > 0 && (
@@ -317,148 +336,14 @@ export default function UndergroundConflictMap() {
           )}
 
           <button
-            onClick={() => setAlgorithmTab(!algorithmTab)}
-            className="inline-flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-800/80 px-4 py-2.5 text-xs font-semibold text-slate-200 hover:bg-slate-700 transition"
+            onClick={() => setSimulationModal(true)}
+            className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-xs font-semibold text-white shadow-lg shadow-indigo-600/30 hover:bg-indigo-500 transition"
           >
-            <Info className="h-4 w-4 text-cyan-400" />
-            {algorithmTab ? 'Hide Algorithm Spec' : 'Collision Algorithm Spec'}
+            <Plus className="h-4 w-4" />
+            Simulate Corridor
           </button>
         </div>
       </div>
-
-      {/* Collision Algorithm Stepper Diagram (Exact replica of Image 1) */}
-      {algorithmTab && (
-        <div className="rounded-[24px] border border-slate-800 bg-slate-950 p-6 text-slate-200 shadow-2xl animate-fadeIn">
-          <div className="flex items-center justify-between border-b border-slate-800 pb-4 mb-6">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-widest text-indigo-400">System Architecture</p>
-              <h3 className="text-lg font-bold text-white">The Collision Algorithm: Synchronous and Geospatial</h3>
-            </div>
-            <span className="rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-xs text-emerald-300 font-mono">
-              ST_Buffer + ST_Intersects + ST_DWithin
-            </span>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-4 items-stretch">
-            {/* Step 1: Buffer */}
-            <div className="relative rounded-2xl border border-slate-800/80 bg-slate-900/90 p-4 flex flex-col justify-between space-y-3">
-              <div className="h-32 w-full rounded-xl bg-slate-950/80 border border-slate-800/60 p-3 flex flex-col items-center justify-center relative overflow-hidden">
-                <div className="absolute top-2 left-1/2 -translate-x-1/2 text-white/40 text-xs font-mono">↓</div>
-                <svg viewBox="0 0 160 80" className="w-full h-full">
-                  <path d="M 15 65 L 50 65 L 110 15 L 145 15" fill="none" stroke="#06B6D4" strokeWidth="22" strokeLinecap="round" opacity="0.35" />
-                  <path d="M 15 65 L 50 65 L 110 15 L 145 15" fill="none" stroke="#FFFFFF" strokeWidth="3" strokeLinecap="round" />
-                </svg>
-              </div>
-
-              <div>
-                <h4 className="font-bold text-white text-sm">Step 1: Buffer</h4>
-                <p className="text-xs text-slate-400 mt-1 leading-relaxed">
-                  Buffer the new route by buffer_m (default 15m).
-                </p>
-              </div>
-
-              <div className="rounded-lg bg-slate-950 p-2.5 text-[11px] font-mono text-cyan-300 border border-slate-800">
-                ST_Buffer(route::geography, buffer_m)::geometry
-              </div>
-
-              <div className="hidden md:block absolute -right-3 top-1/2 -translate-y-1/2 z-10 bg-slate-900 border border-slate-700 rounded-full p-1 text-slate-400">
-                <ArrowRight className="h-3.5 w-3.5" />
-              </div>
-            </div>
-
-            {/* Step 2: Intersect */}
-            <div className="relative rounded-2xl border border-slate-800/80 bg-slate-900/90 p-4 flex flex-col justify-between space-y-3">
-              <div className="h-32 w-full rounded-xl bg-slate-950/80 border border-slate-800/60 p-3 flex items-center justify-center relative overflow-hidden">
-                <svg viewBox="0 0 160 80" className="w-full h-full">
-                  {/* Cyan Polygon */}
-                  <polygon points="25,45 45,15 85,15 105,45 85,75 45,75" fill="#06B6D4" fillOpacity="0.3" stroke="#06B6D4" strokeWidth="2" />
-                  <polygon points="30,45 48,20 82,20 98,45 82,70 48,70" fill="none" stroke="#06B6D4" strokeWidth="1" strokeDasharray="2,2" opacity="0.6" />
-                  {/* Magenta Polygon */}
-                  <polygon points="75,45 95,15 135,15 155,45 135,75 95,75" fill="#EC4899" fillOpacity="0.3" stroke="#EC4899" strokeWidth="2" />
-                </svg>
-              </div>
-
-              <div>
-                <h4 className="font-bold text-white text-sm">Step 2: Intersect</h4>
-                <p className="text-xs text-slate-400 mt-1 leading-relaxed">
-                  Query existing work orders whose buffered geometry intersects the new one using ST_Intersects and ST_DWithin.
-                </p>
-              </div>
-
-              <div className="rounded-lg bg-slate-950 p-2.5 text-[11px] font-mono text-cyan-300 border border-slate-800">
-                ST_Intersects & ST_DWithin
-              </div>
-
-              <div className="hidden md:block absolute -right-3 top-1/2 -translate-y-1/2 z-10 bg-slate-900 border border-slate-700 rounded-full p-1 text-slate-400">
-                <ArrowRight className="h-3.5 w-3.5" />
-              </div>
-            </div>
-
-            {/* Step 3: Temporal Check */}
-            <div className="relative rounded-2xl border border-slate-800/80 bg-slate-900/90 p-4 flex flex-col justify-between space-y-3">
-              <div className="h-32 w-full rounded-xl bg-slate-950/80 border border-slate-800/60 p-3 flex flex-col justify-center relative overflow-hidden">
-                <div className="grid grid-cols-6 gap-1 opacity-20 mb-2">
-                  {[...Array(12)].map((_, i) => (
-                    <div key={i} className="h-2 rounded bg-slate-500" />
-                  ))}
-                </div>
-                <div className="space-y-2">
-                  <div className="h-4 w-24 rounded bg-cyan-500/80 border border-cyan-400 relative">
-                    <span className="absolute -top-3 right-0 text-[9px] text-white">📅</span>
-                  </div>
-                  <div className="h-4 w-28 rounded bg-cyan-500/80 border border-cyan-400 ml-8" />
-                </div>
-              </div>
-
-              <div>
-                <h4 className="font-bold text-white text-sm">Step 3: Temporal Check</h4>
-                <p className="text-xs text-slate-400 mt-1 leading-relaxed">
-                  For each spatial match, compute the date gap between the two [start_date, end_date] ranges.
-                </p>
-              </div>
-
-              <div className="rounded-lg bg-slate-950 p-2.5 text-[11px] font-mono text-amber-300 border border-slate-800">
-                date_gap = max(0, startB - endA)
-              </div>
-
-              <div className="hidden md:block absolute -right-3 top-1/2 -translate-y-1/2 z-10 bg-slate-900 border border-slate-700 rounded-full p-1 text-slate-400">
-                <ArrowRight className="h-3.5 w-3.5" />
-              </div>
-            </div>
-
-            {/* Step 4: Flag & Store (Red Outlined Active Card from Screenshot) */}
-            <div className="relative rounded-2xl border-2 border-rose-500/90 bg-slate-900/95 p-4 flex flex-col justify-between space-y-3 shadow-[0_0_25px_rgba(244,63,94,0.2)]">
-              <div className="h-32 w-full rounded-xl bg-slate-950/90 border border-rose-500/30 p-3 flex items-center justify-center relative overflow-hidden">
-                <svg viewBox="0 0 160 80" className="w-full h-full">
-                  {/* Cyan Polygon */}
-                  <polygon points="25,45 45,15 85,15 105,45 85,75 45,75" fill="#06B6D4" fillOpacity="0.2" stroke="#06B6D4" strokeWidth="2" />
-                  {/* Magenta Polygon */}
-                  <polygon points="75,45 95,15 135,15 155,45 135,75 95,75" fill="#EC4899" fillOpacity="0.2" stroke="#EC4899" strokeWidth="2" />
-                  {/* Highlighted Overlap Intersection (Red / Orange) */}
-                  <polygon points="75,45 85,30 95,45 85,60" fill="#F97316" fillOpacity="0.9" stroke="#EF4444" strokeWidth="2.5" />
-                </svg>
-                <div className="absolute bottom-2 left-2 flex items-center gap-1 rounded bg-rose-500/20 px-1.5 py-0.5 border border-rose-500/40">
-                  <Flag className="h-3 w-3 text-rose-400 fill-rose-400" />
-                </div>
-                <div className="absolute bottom-2 right-2 flex items-center gap-1 rounded bg-slate-800 px-1.5 py-0.5 border border-slate-700">
-                  <Database className="h-3 w-3 text-rose-400" />
-                </div>
-              </div>
-
-              <div>
-                <h4 className="font-bold text-white text-sm">Step 4: Flag & Store</h4>
-                <p className="text-xs text-slate-300 mt-1 leading-relaxed">
-                  If the gap is ≤ 90 days, flag a conflict, assign severity, and store the overlap polygon for map rendering.
-                </p>
-              </div>
-
-              <div className="rounded-lg bg-slate-950 p-2.5 text-[11px] font-mono text-rose-300 border border-slate-800">
-                INSERT INTO conflicts (...)
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Main Interactive Map & Triage Layout */}
       <div className="grid gap-6 xl:grid-cols-[1fr_420px]">
@@ -622,10 +507,11 @@ export default function UndergroundConflictMap() {
                   <button
                     onClick={() => handleApproveWindow(selectedConflict.id)}
                     disabled={selectedConflict.approved}
-                    className={`w-full py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition shadow-lg ${selectedConflict.approved
+                    className={`w-full py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition shadow-lg ${
+                      selectedConflict.approved
                         ? 'bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 cursor-default'
                         : 'bg-indigo-600 text-white hover:bg-indigo-500 shadow-indigo-600/30'
-                      }`}
+                    }`}
                   >
                     {selectedConflict.approved ? (
                       <>
@@ -673,10 +559,11 @@ export default function UndergroundConflictMap() {
                         leafletMap.current.flyTo(c.center, 16);
                       }
                     }}
-                    className={`w-full text-left p-3 rounded-xl border text-xs transition flex items-center justify-between ${isSelected
+                    className={`w-full text-left p-3 rounded-xl border text-xs transition flex items-center justify-between ${
+                      isSelected
                         ? 'border-indigo-500 bg-indigo-500/10 text-white'
                         : 'border-slate-800 bg-slate-950/60 text-slate-300 hover:bg-slate-800/50'
-                      }`}
+                    }`}
                   >
                     <div>
                       <div className="font-bold flex items-center gap-2">
@@ -699,6 +586,64 @@ export default function UndergroundConflictMap() {
           </div>
         </div>
       </div>
+
+      {/* SIMULATE CORRIDOR MODAL */}
+      {simulationModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4">
+          <div className="w-full max-w-md rounded-2xl border border-slate-800 bg-slate-900 p-6 text-slate-200 space-y-4 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <h3 className="text-base font-bold text-white flex items-center gap-2">
+                <Plus className="h-5 w-5 text-indigo-400" />
+                Simulate New Corridor
+              </h3>
+              <button onClick={() => setSimulationModal(false)} className="text-slate-400 hover:text-white text-xs font-bold">
+                ✕
+              </button>
+            </div>
+
+            <div className="space-y-3 text-xs">
+              <div>
+                <label className="block text-slate-400 mb-1 font-semibold">Corridor Title</label>
+                <input
+                  type="text"
+                  value={simTitle}
+                  onChange={(e) => setSimTitle(e.target.value)}
+                  className="w-full rounded-xl border border-slate-800 bg-slate-950 px-3 py-2 text-white outline-none focus:border-indigo-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-slate-400 mb-1 font-semibold">Department</label>
+                <select
+                  value={simDept}
+                  onChange={(e) => setSimDept(e.target.value)}
+                  className="w-full rounded-xl border border-slate-800 bg-slate-950 px-3 py-2 text-white outline-none focus:border-indigo-500"
+                >
+                  <option value="roads">Roads (White)</option>
+                  <option value="water">Water (Cyan)</option>
+                  <option value="telecom">Telecom (Magenta)</option>
+                  <option value="gas">Gas (Amber)</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-800">
+              <button
+                onClick={() => setSimulationModal(false)}
+                className="px-4 py-2 text-xs text-slate-400 hover:text-white font-semibold"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSimulateWorkOrder}
+                className="rounded-xl bg-indigo-600 px-4 py-2 text-xs font-bold text-white hover:bg-indigo-500 shadow-lg shadow-indigo-600/30"
+              >
+                Plot Corridor
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
