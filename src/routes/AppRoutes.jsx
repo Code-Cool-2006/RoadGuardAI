@@ -4,6 +4,7 @@ import Home from '@/pages/Home';
 import ReportHazard from '@/pages/ReportHazard';
 import Incidents from '@/pages/Incidents';
 import SafetyAssistant from '@/pages/SafetyAssistant';
+import Login from '@/pages/Login';
 import NotFound from '@/pages/NotFound';
 
 export const router = createBrowserRouter([
@@ -15,6 +16,10 @@ export const router = createBrowserRouter([
       {
         index: true,
         element: <Home />,
+      },
+      {
+        path: 'login',
+        element: <Login />,
       },
       {
         path: 'report',
