@@ -165,8 +165,20 @@ export default function RoadGuard() {
           </div>
         </div>
 
+        {/* CITIZEN MOBILE APP NOTIFICATION BROADCAST BANNER */}
+        <div className="mt-6 rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs shadow-lg">
+          <div className="flex items-center gap-2.5 text-amber-300 font-medium">
+            <span className="h-2.5 w-2.5 rounded-full bg-amber-400 animate-ping" />
+            <span className="font-bold text-amber-200">Citizen App Broadcast:</span>
+            <span>Active digging, pipe laying & trenching notifications are live-synchronized with the citizen mobile app.</span>
+          </div>
+          <span className="rounded-full bg-amber-500/20 border border-amber-500/40 px-3 py-1 text-[10px] font-mono font-bold text-amber-300">
+            Push Alerts Active
+          </span>
+        </div>
+
         {/* QUICK DIFFERENTIATOR MATRIX SUMMARY BAR */}
-        <div className="mt-6 pt-6 border-t border-slate-800 grid gap-3 md:grid-cols-4 font-mono">
+        <div className="mt-4 pt-4 border-t border-slate-800 grid gap-3 md:grid-cols-4 font-mono">
           <div className="rounded-xl border border-slate-800 bg-slate-950/60 p-3">
             <span className="text-slate-400 block text-xs uppercase font-sans tracking-wider">Account Creation</span>
             <span className="font-bold text-white text-sm">
