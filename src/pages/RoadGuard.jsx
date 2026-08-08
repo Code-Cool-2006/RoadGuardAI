@@ -1,28 +1,19 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   AlertCircle,
   BellRing,
   Briefcase,
-  Compass,
-  MapPinned,
   ShieldCheck,
   Sparkles,
-  TrendingUp,
   Crown,
   Building2,
   UserCheck,
-  Plus,
-  CheckCircle2,
-  XCircle,
   UserPlus,
   Lock,
-  Layers,
-  FileText,
   Send
 } from 'lucide-react';
-import { useAppContext } from '@/context/AppContext';
-import { Button } from '@/components/ui/button';
+import { useAppContext } from '@/context/useAppContext';
 import UndergroundConflictMap from '@/components/map/UndergroundConflictMap';
 
 const departmentOptions = ['Road', 'Water', 'Telecom', 'Gas', 'Electricity'];
@@ -31,14 +22,8 @@ export default function RoadGuard() {
   const {
     user,
     userAccounts,
-    departments,
     departmentStaff,
-    login,
     createAccount,
-    complaints,
-    workOrders,
-    notices,
-    submitComplaint,
     updateComplaintStatus,
     assignStaffToComplaint,
     updateWorkOrderStatus,
@@ -53,7 +38,6 @@ export default function RoadGuard() {
   const [activeTab, setActiveTab] = useState('overview');
 
   // Form States
-  const [complaintForm, setComplaintForm] = useState({ title: '', location: '', description: '', department: 'Road', image: '' });
   const [workOrderForm, setWorkOrderForm] = useState({ title: '', schedule: '2026-08-20 to 2026-09-01', engineers: '', route: '' });
   const [noticeForm, setNoticeForm] = useState({ title: '', detail: '' });
   const [accountForm, setAccountForm] = useState({ name: '', email: '', password: 'demo123', department: 'Road' });
@@ -71,8 +55,6 @@ export default function RoadGuard() {
   const isSuperDept = user.role === 'super_dept';
   const isDeptAdmin = user.role === 'dept_admin';
 
-  const canCreateSuperDept = isSuperAdmin;
-  const canCreateDeptAdmin = isSuperDept;
   const canPublishNotices = isSuperDept;
   const canManageWorkOrders = isSuperDept || isDeptAdmin;
   const canManageComplaints = isSuperDept || isDeptAdmin;
@@ -117,17 +99,6 @@ export default function RoadGuard() {
       department: isSuperAdmin ? 'Road' : user.department,
     });
     setWorkOrderForm({ title: '', schedule: '2026-08-20 to 2026-09-01', engineers: '', route: '' });
-  };
-
-  const handleComplaintSubmit = (e) => {
-    e.preventDefault();
-    if (!complaintForm.title || !complaintForm.description) return;
-    submitComplaint({
-      ...complaintForm,
-      location: complaintForm.location || 'Auto-captured GPS coordinate',
-      image: complaintForm.image || 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=900&q=80',
-    });
-    setComplaintForm({ title: '', location: '', description: '', department: 'Road', image: '' });
   };
 
   const roleBadgeInfo = isSuperAdmin
@@ -414,7 +385,6 @@ export default function RoadGuard() {
                       <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-800 text-xs">
                         <span className="text-slate-400 font-mono text-[11px]">{order.schedule}</span>
 
-                        {/* Interactive Work-Order Status Buttons */}
                         {canManageWorkOrders ? (
                           <div className="flex items-center gap-1 bg-slate-900 p-1 rounded-xl border border-slate-800">
                             {['yet_to_start', 'working', 'completed'].map((status) => {

@@ -1,7 +1,6 @@
-import { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { api, API_BASE_URL } from '@/services/api';
-
-const AppContext = createContext(null);
+import { AppContext } from './appContextInstance';
 
 function normalizeDept(raw) {
   if (!raw) return 'Road';
@@ -85,7 +84,7 @@ export function AppProvider({ children }) {
   const [isLoadingLive, setIsLoadingLive] = useState(true);
 
   // Synchronize ALL data live from Render PostgreSQL Database
-  const fetchAllLiveData = async () => {
+  const fetchAllLiveData = useCallback(async () => {
     setIsLoadingLive(true);
 
     // 1. Fetch All Live Complaints
@@ -179,11 +178,15 @@ export function AppProvider({ children }) {
     }
 
     setIsLoadingLive(false);
-  };
+  }, []);
 
   useEffect(() => {
-    fetchAllLiveData();
-  }, []);
+    const timer = window.setTimeout(() => {
+      void fetchAllLiveData();
+    }, 0);
+
+    return () => window.clearTimeout(timer);
+  }, [fetchAllLiveData]);
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', theme === 'dark');
@@ -193,7 +196,7 @@ export function AppProvider({ children }) {
   }, [theme]);
 
   // Auth Login with live backend
-  const login = async (role, department, name, email) => {
+  const login = useCallback(async (role, department, name, email) => {
     setUser({ id: Date.now(), role, department, name, email });
     try {
       const authResult = await api.login(email, 'SuperAdmin@2026');
@@ -204,15 +207,15 @@ export function AppProvider({ children }) {
     } catch {
       // Offline / role switch fallback
     }
-  };
+  }, [fetchAllLiveData]);
 
-  const logout = () => {
+  const logout = useCallback(() => {
     api.logout();
     setUser(null);
-  };
+  }, []);
 
   // Super Admin creates Super Dept accounts; Super Dept creates Dept Admin accounts
-  const createAccount = async ({ name, email, password, role, department }) => {
+  const createAccount = useCallback(async ({ name, email, password, role, department }) => {
     if (!user) return null;
 
     if (user.role === 'super_admin' && role !== 'super_dept') {
@@ -253,10 +256,10 @@ export function AppProvider({ children }) {
       setUserAccounts((prev) => [fallbackAcc, ...prev]);
       return fallbackAcc;
     }
-  };
+  }, [user]);
 
   // Submit citizen complaint (Direct DB insertion)
-  const submitComplaint = async (payload) => {
+  const submitComplaint = useCallback(async (payload) => {
     const tempId = Date.now();
     const newComplaint = {
       id: tempId,
@@ -292,10 +295,10 @@ export function AppProvider({ children }) {
     } catch (e) {
       console.warn('[RoadGuard] Complaint DB notice:', e.message);
     }
-  };
+  }, [user]);
 
   // Update complaint status (Accept, Deny, In Progress, Resolved)
-  const updateComplaintStatus = (id, status) => {
+  const updateComplaintStatus = useCallback((id, status) => {
     if (user?.role === 'super_admin') {
       alert('Super Admin has read-only view of complaints.');
       return;
@@ -303,10 +306,10 @@ export function AppProvider({ children }) {
     setComplaints((current) =>
       current.map((item) => (item.id === id ? { ...item, status } : item))
     );
-  };
+  }, [user]);
 
   // Assign staff member to complaint
-  const assignStaffToComplaint = (id, staffName) => {
+  const assignStaffToComplaint = useCallback((id, staffName) => {
     if (user?.role === 'super_admin') {
       alert('Super Admin has read-only view of complaints.');
       return;
@@ -314,10 +317,10 @@ export function AppProvider({ children }) {
     setComplaints((current) =>
       current.map((item) => (item.id === id ? { ...item, assignedStaff: staffName } : item))
     );
-  };
+  }, [user]);
 
   // Update work order status (yet_to_start | working | completed)
-  const updateWorkOrderStatus = async (id, newStatus) => {
+  const updateWorkOrderStatus = useCallback(async (id, newStatus) => {
     if (user?.role === 'super_admin') {
       alert('Super Admin has read-only view of work orders.');
       return;
@@ -331,10 +334,10 @@ export function AppProvider({ children }) {
     } catch (e) {
       console.warn('[RoadGuard] Work order status update notice:', e.message);
     }
-  };
+  }, [user]);
 
   // Create work order
-  const createWorkOrder = async (payload) => {
+  const createWorkOrder = useCallback(async (payload) => {
     if (user?.role === 'super_admin') {
       alert('Super Admin cannot create department work orders directly.');
       return null;
@@ -374,10 +377,10 @@ export function AppProvider({ children }) {
       console.warn('[RoadGuard] Work order DB notice:', e.message);
     }
     return nextOrder;
-  };
+  }, [user, fetchAllLiveData]);
 
   // Publish Notice — Strictly reserved for Super Dept Accounts
-  const publishNotice = async (payload) => {
+  const publishNotice = useCallback(async (payload) => {
     if (user?.role !== 'super_dept') {
       alert('Permission Denied: Only Super Dept Accounts can publish work-contract notices.');
       return;
@@ -403,9 +406,9 @@ export function AppProvider({ children }) {
     } catch (e) {
       console.warn('[RoadGuard] Notice publish notice:', e.message);
     }
-  };
+  }, [user]);
 
-  const addComment = (id, text) => {
+  const addComment = useCallback((id, text) => {
     setComplaints((current) =>
       current.map((complaint) =>
         complaint.id === id
@@ -413,32 +416,31 @@ export function AppProvider({ children }) {
           : complaint
       )
     );
-  };
+  }, [user]);
 
-  const toggleLike = (id) => {
+  const toggleLike = useCallback((id) => {
     setComplaints((current) =>
       current.map((complaint) => (complaint.id === id ? { ...complaint, likes: complaint.likes + 1 } : complaint))
     );
-  };
+  }, []);
 
-  // Scope Filtering Helpers
-  const getVisibleComplaints = () => {
+  const getVisibleComplaints = useCallback(() => {
     if (!user) return [];
     if (user.role === 'super_admin') return complaints;
     return complaints.filter((item) => item.department.toLowerCase() === user.department.toLowerCase());
-  };
+  }, [complaints, user]);
 
-  const getVisibleWorkOrders = () => {
+  const getVisibleWorkOrders = useCallback(() => {
     if (!user) return [];
     if (user.role === 'super_admin') return workOrders;
     return workOrders.filter((item) => item.department.toLowerCase() === user.department.toLowerCase());
-  };
+  }, [workOrders, user]);
 
-  const getVisibleNotices = () => {
+  const getVisibleNotices = useCallback(() => {
     if (!user) return [];
     if (user.role === 'super_admin') return notices;
     return notices.filter((item) => item.department.toLowerCase() === user.department.toLowerCase());
-  };
+  }, [notices, user]);
 
   const value = useMemo(
     () => ({
@@ -469,12 +471,33 @@ export function AppProvider({ children }) {
       fetchAllLiveData,
       isLoadingLive,
     }),
-    [theme, user, userAccounts, complaints, workOrders, conflicts, notices, isLoadingLive]
+    [
+      theme,
+      user,
+      userAccounts,
+      complaints,
+      workOrders,
+      conflicts,
+      notices,
+      isLoadingLive,
+      login,
+      logout,
+      createAccount,
+      submitComplaint,
+      addComment,
+      toggleLike,
+      updateComplaintStatus,
+      assignStaffToComplaint,
+      updateWorkOrderStatus,
+      createWorkOrder,
+      publishNotice,
+      getVisibleComplaints,
+      getVisibleWorkOrders,
+      getVisibleNotices,
+      fetchAllLiveData,
+    ]
   );
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 }
 
-export function useAppContext() {
-  return useContext(AppContext);
-}

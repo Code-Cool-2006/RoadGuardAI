@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight, Eye, EyeOff, MoonStar, ShieldCheck, SunMedium, Crown, Building2, UserCheck } from 'lucide-react';
-import { useAppContext } from '@/context/AppContext';
+import { useAppContext } from '@/context/useAppContext';
 import logoImg from '@/assets/logo.jpg';
 
 const roles = [
