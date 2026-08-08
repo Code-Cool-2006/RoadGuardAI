@@ -1,6 +1,6 @@
 import React from 'react';
 import UndergroundConflictMap from '@/components/map/UndergroundConflictMap';
-import { useAppContext } from '@/context/AppContext';
+import { useAppContext } from '@/context/useAppContext';
 import { AlertCircle, Camera, MapPin, Sparkles } from 'lucide-react';
 
 export default function Incidents() {

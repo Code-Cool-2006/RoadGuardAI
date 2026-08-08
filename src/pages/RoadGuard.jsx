@@ -1,28 +1,19 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   AlertCircle,
   BellRing,
   Briefcase,
-  Compass,
-  MapPinned,
   ShieldCheck,
   Sparkles,
-  TrendingUp,
   Crown,
   Building2,
   UserCheck,
-  Plus,
-  CheckCircle2,
-  XCircle,
   UserPlus,
   Lock,
-  Layers,
-  FileText,
   Send
 } from 'lucide-react';
-import { useAppContext } from '@/context/AppContext';
-import { Button } from '@/components/ui/button';
+import { useAppContext } from '@/context/useAppContext';
 import UndergroundConflictMap from '@/components/map/UndergroundConflictMap';
 
 const departmentOptions = ['Road', 'Water', 'Telecom', 'Gas', 'Electricity'];
@@ -31,14 +22,8 @@ export default function RoadGuard() {
   const {
     user,
     userAccounts,
-    departments,
     departmentStaff,
-    login,
     createAccount,
-    complaints,
-    workOrders,
-    notices,
-    submitComplaint,
     updateComplaintStatus,
     assignStaffToComplaint,
     updateWorkOrderStatus,
@@ -53,7 +38,6 @@ export default function RoadGuard() {
   const [activeTab, setActiveTab] = useState('overview');
 
   // Form States
-  const [complaintForm, setComplaintForm] = useState({ title: '', location: '', description: '', department: 'Road', image: '' });
   const [workOrderForm, setWorkOrderForm] = useState({ title: '', schedule: '2026-08-20 to 2026-09-01', engineers: '', route: '' });
   const [noticeForm, setNoticeForm] = useState({ title: '', detail: '' });
   const [accountForm, setAccountForm] = useState({ name: '', email: '', password: 'demo123', department: 'Road' });
@@ -71,8 +55,6 @@ export default function RoadGuard() {
   const isSuperDept = user.role === 'super_dept';
   const isDeptAdmin = user.role === 'dept_admin';
 
-  const canCreateSuperDept = isSuperAdmin;
-  const canCreateDeptAdmin = isSuperDept;
   const canPublishNotices = isSuperDept;
   const canManageWorkOrders = isSuperDept || isDeptAdmin;
   const canManageComplaints = isSuperDept || isDeptAdmin;
@@ -117,17 +99,6 @@ export default function RoadGuard() {
       department: isSuperAdmin ? 'Road' : user.department,
     });
     setWorkOrderForm({ title: '', schedule: '2026-08-20 to 2026-09-01', engineers: '', route: '' });
-  };
-
-  const handleComplaintSubmit = (e) => {
-    e.preventDefault();
-    if (!complaintForm.title || !complaintForm.description) return;
-    submitComplaint({
-      ...complaintForm,
-      location: complaintForm.location || 'Auto-captured GPS coordinate',
-      image: complaintForm.image || 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=900&q=80',
-    });
-    setComplaintForm({ title: '', location: '', description: '', department: 'Road', image: '' });
   };
 
   const roleBadgeInfo = isSuperAdmin
@@ -410,25 +381,10 @@ export default function RoadGuard() {
                           {order.department}
                         </span>
                       </div>
-                {visibleWorkOrders.length > 0 ? (
-                  visibleWorkOrders.map((order) => (
-                    <div key={order.id} className="rounded-2xl border border-slate-800 bg-slate-950/80 p-4 space-y-3">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="font-bold text-white text-xs">{order.title}</p>
-                          <p className="text-[11px] text-slate-400 mt-0.5">Engineers: {order.engineers}</p>
-                        </div>
-                        <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border border-amber-500/30 bg-amber-500/10 text-amber-300">
-                          {order.department}
-                        </span>
-                      </div>
 
                       <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-800 text-xs">
                         <span className="text-slate-400 font-mono text-[11px]">{order.schedule}</span>
-                      <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-800 text-xs">
-                        <span className="text-slate-400 font-mono text-[11px]">{order.schedule}</span>
 
-                        {/* Interactive Work-Order Status Buttons */}
                         {canManageWorkOrders ? (
                           <div className="flex items-center gap-1 bg-slate-900 p-1 rounded-xl border border-slate-800">
                             {['yet_to_start', 'working', 'completed'].map((status) => {
@@ -445,46 +401,6 @@ export default function RoadGuard() {
                                           : 'bg-amber-500 text-white shadow'
                                       : 'text-slate-400 hover:text-white'
                                     }`}
-                                >
-                                  {status.replace('_', ' ')}
-                                </button>
-                              );
-                            })}
-                          </div>
-                        ) : (
-                          <span className="text-[11px] font-bold uppercase px-2.5 py-0.5 rounded bg-slate-800 text-slate-300">
-                            Status: {order.status}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <div className="text-center py-12 border border-dashed border-[#2B2653]/10 rounded-xl">
-                    <Briefcase className="h-8 w-8 mx-auto text-[#2B2653]/20" />
-                    <p className="mt-2 text-sm text-[#5A5A5A]">No work orders found in this scope.</p>
-                  </div>
-                )}
-              </div>
-            </div>
-                        {/* Interactive Work-Order Status Buttons */}
-                        {canManageWorkOrders ? (
-                          <div className="flex items-center gap-1 bg-slate-900 p-1 rounded-xl border border-slate-800">
-                            {['yet_to_start', 'working', 'completed'].map((status) => {
-                              const isCurrent = order.status === status;
-                              return (
-                                <button
-                                  key={status}
-                                  onClick={() => updateWorkOrderStatus(order.id, status)}
-                                  className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition uppercase ${
-                                    isCurrent
-                                      ? status === 'completed'
-                                        ? 'bg-emerald-500 text-white shadow'
-                                        : status === 'working'
-                                        ? 'bg-cyan-500 text-white shadow'
-                                        : 'bg-amber-500 text-white shadow'
-                                      : 'text-slate-400 hover:text-white'
-                                  }`}
                                 >
                                   {status.replace('_', ' ')}
                                 </button>
@@ -764,8 +680,6 @@ export default function RoadGuard() {
                   Department: <strong className="text-[#1C1C1C]">{acc.department}</strong>
                 </p>
               </div>
-            ))}
-          </div>
             ))}
           </div>
         </div>
