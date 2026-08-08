@@ -73,40 +73,69 @@ body {
   color: #1C1C1C;
 }
 
-.dashboard-shell [class*="bg-slate-900"],
-.dashboard-shell [class*="bg-slate-950"],
-.dashboard-shell [class*="bg-slate-800"],
-.dashboard-shell [class*="bg-slate-700"] {
+/* Light mode defaults for dashboard-shell */
+:root:not(.dark) .dashboard-shell [class*="bg-slate-900"],
+:root:not(.dark) .dashboard-shell [class*="bg-slate-950"],
+:root:not(.dark) .dashboard-shell [class*="bg-slate-800"],
+:root:not(.dark) .dashboard-shell [class*="bg-slate-700"] {
   background-color: #ffffff !important;
-  border-color: rgba(43, 38, 83, 0.12) !important;
+  border-color: rgba(43, 38, 83, 0.1) !important;
 }
 
-.dashboard-shell [class*="text-slate-300"],
-.dashboard-shell [class*="text-slate-400"],
-.dashboard-shell [class*="text-slate-500"],
-.dashboard-shell [class*="text-slate-200"],
-.dashboard-shell [class*="text-slate-100"] {
+:root:not(.dark) .dashboard-shell [class*="text-slate-300"],
+:root:not(.dark) .dashboard-shell [class*="text-slate-400"],
+:root:not(.dark) .dashboard-shell [class*="text-slate-500"],
+:root:not(.dark) .dashboard-shell [class*="text-slate-200"],
+:root:not(.dark) .dashboard-shell [class*="text-slate-100"] {
   color: #5A5A5A !important;
 }
 
-.dashboard-shell [class*="border-slate-800"],
-.dashboard-shell [class*="border-slate-900"],
-.dashboard-shell [class*="border-slate-700"] {
-  border-color: rgba(43, 38, 83, 0.12) !important;
+:root:not(.dark) .dashboard-shell [class*="border-slate-800"],
+:root:not(.dark) .dashboard-shell [class*="border-slate-900"],
+:root:not(.dark) .dashboard-shell [class*="border-slate-700"] {
+  border-color: rgba(43, 38, 83, 0.1) !important;
 }
 
-.dashboard-shell [class*="shadow-2xl"],
-.dashboard-shell [class*="shadow-xl"],
-.dashboard-shell [class*="shadow-lg"] {
+:root:not(.dark) .dashboard-shell [class*="shadow-2xl"],
+:root:not(.dark) .dashboard-shell [class*="shadow-xl"],
+:root:not(.dark) .dashboard-shell [class*="shadow-lg"] {
   box-shadow: 0 15px 60px rgba(43, 38, 83, 0.04) !important;
 }
 
-.dashboard-shell input,
-.dashboard-shell select,
-.dashboard-shell textarea {
+:root:not(.dark) .dashboard-shell input,
+:root:not(.dark) .dashboard-shell select,
+:root:not(.dark) .dashboard-shell textarea {
   background-color: #ffffff !important;
-  border-color: rgba(43, 38, 83, 0.14) !important;
+  border-color: rgba(43, 38, 83, 0.15) !important;
   color: #1C1C1C !important;
+}
+
+/* Ensure text on solid colored buttons/badges stays visible white */
+.bg-indigo-600,
+.bg-emerald-600,
+.bg-rose-600,
+.bg-cyan-600,
+.bg-fuchsia-600,
+.bg-amber-600,
+.bg-rose-500,
+.bg-emerald-500,
+.bg-cyan-500,
+.bg-amber-500,
+.bg-indigo-500,
+.bg-fuchsia-500,
+.bg-\[\#2B2653\],
+.bg-\[\#282936\] {
+  color: #ffffff !important;
+}
+
+/* Map tooltip styling */
+.dark-tooltip {
+  background: rgba(15, 23, 42, 0.95) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3) !important;
+  padding: 4px 8px !important;
+  color: #ffffff !important;
 }
 
 @theme inline {

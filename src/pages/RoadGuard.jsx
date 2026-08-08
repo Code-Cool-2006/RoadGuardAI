@@ -102,106 +102,107 @@ export default function RoadGuard() {
   };
 
   const roleBadgeInfo = isSuperAdmin
-    ? { title: 'Super Admin Control Center', icon: Crown, color: 'text-fuchsia-700', border: 'border-fuchsia-500/30', bg: 'bg-fuchsia-500/10' }
+    ? { title: 'Super Admin Control Center', icon: Crown, color: 'text-fuchsia-800 dark:text-fuchsia-300', border: 'border-fuchsia-500/30', bg: 'bg-fuchsia-50 dark:bg-fuchsia-500/10' }
     : isSuperDept
-      ? { title: `${user.department} Department Console (Super Dept)`, icon: Building2, color: 'text-indigo-700', border: 'border-indigo-500/30', bg: 'bg-indigo-500/10' }
-      : { title: `${user.department} Department Field Console (Dept Admin)`, icon: UserCheck, color: 'text-cyan-700', border: 'border-cyan-500/30', bg: 'bg-cyan-500/10' };
+      ? { title: `${user.department} Department Console (Super Dept)`, icon: Building2, color: 'text-indigo-800 dark:text-indigo-300', border: 'border-indigo-500/30', bg: 'bg-indigo-50 dark:bg-indigo-500/10' }
+      : { title: `${user.department} Department Field Console (Dept Admin)`, icon: UserCheck, color: 'text-cyan-800 dark:text-cyan-300', border: 'border-cyan-500/30', bg: 'bg-cyan-50 dark:bg-cyan-500/10' };
 
   const RoleIcon = roleBadgeInfo.icon;
 
   return (
     <div className="dashboard-shell space-y-8">
       {/* HEADER BANNER WITH RBAC ROLE SUMMARY */}
-      <section className="rounded-[24px] border border-slate-800/80 bg-slate-900/80 p-8 shadow-2xl backdrop-blur-md">
+      <section className="rounded-[24px] border border-[#2B2653]/10 dark:border-slate-800/80 bg-white dark:bg-slate-900/80 p-8 shadow-[0_15px_60px_rgba(43,38,83,0.04)] dark:shadow-2xl backdrop-blur-md">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <div className={`inline-flex items-center gap-2 rounded-full border ${roleBadgeInfo.border} ${roleBadgeInfo.bg} px-3.5 py-1 text-xs font-extrabold uppercase tracking-wider ${roleBadgeInfo.color}`}>
               <RoleIcon className="h-4 w-4" /> {user.role.replace('_', ' ').toUpperCase()} • {isSuperAdmin ? 'SYSTEM-WIDE SCOPE' : `${user.department.toUpperCase()} SCOPE`}
             </div>
-            <h1 className="mt-3 text-3xl font-bold text-[#1C1C1C] sm:text-4xl">{roleBadgeInfo.title}</h1>
-            <p className="mt-2 max-w-2xl text-sm text-slate-300">
+            <h1 className="mt-3 text-3xl font-bold text-[#1C1C1C] dark:text-white sm:text-4xl">{roleBadgeInfo.title}</h1>
+            <p className="mt-2 max-w-2xl text-sm text-[#5A5A5A] dark:text-slate-300">
               Role-based control portal for work-order status orchestration, notice publishing, account creation, and community complaint triage.
             </p>
           </div>
 
-          <div className="rounded-2xl border border-slate-800 bg-slate-950/80 p-4 text-xs text-slate-300 space-y-1 font-mono min-w-[240px]">
-            <p className="font-bold text-[#1C1C1C] font-sans text-sm">{user.name}</p>
-            <p className="text-slate-400">{user.email}</p>
-            <p className="text-[#2B2653] pt-1 border-t border-slate-800 mt-2">
-              Role: <strong className="text-[#1C1C1C]">{user.role}</strong>
+          <div className="rounded-2xl border border-[#2B2653]/10 dark:border-slate-800 bg-[#F8F6F0] dark:bg-slate-950/80 p-4 text-xs text-[#5A5A5A] dark:text-slate-300 space-y-1 font-mono min-w-[240px]">
+            <p className="font-bold text-[#1C1C1C] dark:text-white font-sans text-sm">{user.name}</p>
+            <p className="text-[#5A5A5A] dark:text-slate-400">{user.email}</p>
+            <p className="text-[#2B2653] dark:text-slate-400 pt-1 border-t border-[#2B2653]/10 dark:border-slate-800 mt-2">
+              Role: <strong className="text-[#1C1C1C] dark:text-white">{user.role}</strong>
             </p>
-            <p className="text-[#2B2653]">
-              Department: <strong className="text-[#1C1C1C]">{user.department}</strong>
+            <p className="text-[#2B2653] dark:text-slate-400">
+              Department: <strong className="text-[#1C1C1C] dark:text-white">{user.department}</strong>
             </p>
           </div>
         </div>
 
         {/* CITIZEN MOBILE APP NOTIFICATION BROADCAST BANNER */}
-        <div className="mt-6 rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs shadow-lg">
-          <div className="flex items-center gap-2.5 text-amber-300 font-medium">
-            <span className="h-2.5 w-2.5 rounded-full bg-amber-400 animate-ping" />
-            <span className="font-bold text-amber-200">Citizen App Broadcast:</span>
+        <div className="mt-6 rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs shadow-sm">
+          <div className="flex items-center gap-2.5 text-amber-950 dark:text-amber-300 font-medium">
+            <span className="h-2.5 w-2.5 rounded-full bg-amber-500 animate-ping shrink-0" />
+            <span className="font-bold text-amber-900 dark:text-amber-200">Citizen App Broadcast:</span>
             <span>Active digging, pipe laying & trenching notifications are live-synchronized with the citizen mobile app.</span>
           </div>
-          <span className="rounded-full bg-amber-500/20 border border-amber-500/40 px-3 py-1 text-[10px] font-mono font-bold text-amber-300">
+          <span className="rounded-full bg-amber-500/20 border border-amber-500/40 px-3 py-1 text-[10px] font-mono font-bold text-amber-900 dark:text-amber-300 shrink-0">
             Push Alerts Active
           </span>
         </div>
 
         {/* QUICK DIFFERENTIATOR MATRIX SUMMARY BAR */}
-        <div className="mt-4 pt-4 border-t border-slate-800 grid gap-3 md:grid-cols-4 font-mono">
-          <div className="rounded-xl border border-slate-800 bg-slate-950/60 p-3">
-            <span className="text-slate-400 block text-xs uppercase font-sans tracking-wider">Account Creation</span>
-            <span className="font-bold text-white text-sm">
+        <div className="mt-4 pt-4 border-t border-[#2B2653]/10 dark:border-slate-800 grid gap-3 md:grid-cols-4 font-mono">
+          <div className="rounded-xl border border-[#2B2653]/10 dark:border-slate-800 bg-[#F8F6F0] dark:bg-slate-950/60 p-3">
+            <span className="text-[#5A5A5A] dark:text-slate-400 block text-xs uppercase font-sans tracking-wider font-semibold">Account Creation</span>
+            <span className="font-bold text-[#1C1C1C] dark:text-white text-sm">
               {isSuperAdmin ? 'Creates Super Dept' : isSuperDept ? 'Creates Dept Admin' : 'Disabled'}
             </span>
           </div>
 
-          <div className="rounded-xl border border-slate-800 bg-slate-950/60 p-3">
-            <span className="text-slate-400 block text-xs uppercase font-sans tracking-wider">Publish Notices</span>
-            <span className="font-bold text-white text-sm">
+          <div className="rounded-xl border border-[#2B2653]/10 dark:border-slate-800 bg-[#F8F6F0] dark:bg-slate-950/60 p-3">
+            <span className="text-[#5A5A5A] dark:text-slate-400 block text-xs uppercase font-sans tracking-wider font-semibold">Publish Notices</span>
+            <span className="font-bold text-[#1C1C1C] dark:text-white text-sm">
               {canPublishNotices ? 'Super Dept Only' : 'View Only'}
             </span>
           </div>
 
-          <div className="rounded-xl border border-slate-800 bg-slate-950/60 p-3">
-            <span className="text-slate-400 block text-xs uppercase font-sans tracking-wider">Update Work Orders</span>
-            <span className="font-bold text-white text-sm">
+          <div className="rounded-xl border border-[#2B2653]/10 dark:border-slate-800 bg-[#F8F6F0] dark:bg-slate-950/60 p-3">
+            <span className="text-[#5A5A5A] dark:text-slate-400 block text-xs uppercase font-sans tracking-wider font-semibold">Update Work Orders</span>
+            <span className="font-bold text-[#1C1C1C] dark:text-white text-sm">
               {canManageWorkOrders ? 'Status & Triage' : 'View Only'}
             </span>
           </div>
 
-          <div className="rounded-xl border border-slate-800 bg-slate-950/60 p-3">
-            <span className="text-slate-400 block text-xs uppercase font-sans tracking-wider">Complaint Triage</span>
-            <span className="font-bold text-white text-sm">
+          <div className="rounded-xl border border-[#2B2653]/10 dark:border-slate-800 bg-[#F8F6F0] dark:bg-slate-950/60 p-3">
+            <span className="text-[#5A5A5A] dark:text-slate-400 block text-xs uppercase font-sans tracking-wider font-semibold">Complaint Triage</span>
+            <span className="font-bold text-[#1C1C1C] dark:text-white text-sm">
               {canManageComplaints ? 'Accept/Deny/Assign' : 'View Only'}
             </span>
           </div>
         </div>
       </section>
 
-      {/* METRIC COUNTERS */}       <section className="grid gap-4 md:grid-cols-4">
+      {/* METRIC COUNTERS */}
+      <section className="grid gap-4 md:grid-cols-4">
         {[
-          { label: 'Visible Complaints', value: visibleComplaints.length, icon: AlertCircle, color: 'text-rose-700' },
-          { label: 'Work Orders', value: visibleWorkOrders.length, icon: Briefcase, color: 'text-amber-700' },
-          { label: 'System Notices', value: visibleNotices.length, icon: BellRing, color: 'text-cyan-700' },
-          { label: 'System Accounts', value: userAccounts.length, icon: ShieldCheck, color: 'text-fuchsia-700' },
+          { label: 'Visible Complaints', value: visibleComplaints.length, icon: AlertCircle, color: 'text-rose-700 dark:text-rose-400' },
+          { label: 'Work Orders', value: visibleWorkOrders.length, icon: Briefcase, color: 'text-amber-700 dark:text-amber-400' },
+          { label: 'System Notices', value: visibleNotices.length, icon: BellRing, color: 'text-cyan-700 dark:text-cyan-400' },
+          { label: 'System Accounts', value: userAccounts.length, icon: ShieldCheck, color: 'text-fuchsia-700 dark:text-fuchsia-400' },
         ].map((item) => {
           const Icon = item.icon;
           return (
-            <div key={item.label} className="rounded-[20px] border border-slate-800 bg-slate-900/80 p-5 text-slate-200 shadow-xl">
+            <div key={item.label} className="rounded-[20px] border border-[#2B2653]/10 dark:border-slate-800 bg-white dark:bg-slate-900/80 p-5 text-[#1C1C1C] dark:text-slate-200 shadow-[0_15px_60px_rgba(43,38,83,0.04)] dark:shadow-xl">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">{item.label}</span>
+                <span className="text-xs font-semibold uppercase tracking-wider text-[#5A5A5A] dark:text-slate-400">{item.label}</span>
                 <Icon className={`h-5 w-5 ${item.color}`} />
               </div>
-              <p className="mt-3 text-3xl font-extrabold text-[#1C1C1C]">{item.value}</p>
+              <p className="mt-3 text-3xl font-extrabold text-[#1C1C1C] dark:text-white">{item.value}</p>
             </div>
           );
         })}
       </section>
 
       {/* TABS */}
-      <section className="flex flex-wrap gap-3 border-b border-slate-800 pb-4">
+      <section className="flex flex-wrap gap-3 border-b border-[#2B2653]/10 dark:border-slate-800 pb-4">
         {[
           { id: 'overview', label: 'Management Console' },
           { id: 'accounts', label: 'Account Directory' },
@@ -210,8 +211,8 @@ export default function RoadGuard() {
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
             className={`rounded-xl border px-5 py-2.5 text-xs font-bold transition ${activeTab === tab.id
-                ? 'border-indigo-500 bg-indigo-500/20 text-indigo-300 shadow-lg'
-                : 'border-slate-800 bg-slate-900/70 text-slate-400 hover:text-slate-200'
+                ? 'border-[#2B2653]/30 bg-[#2B2653]/10 text-[#2B2653] dark:border-indigo-500 dark:bg-indigo-500/20 dark:text-indigo-300 shadow-sm'
+                : 'border-[#2B2653]/10 bg-white text-[#5A5A5A] hover:text-[#1C1C1C] hover:bg-[#F8F6F0] dark:border-slate-800 dark:bg-slate-900/70 dark:text-slate-400 dark:hover:text-slate-200'
               }`}
           >
             {tab.label}
@@ -225,14 +226,14 @@ export default function RoadGuard() {
           <div className="space-y-8">
 
             {/* SECTION 1: ACCOUNT CREATION PANEL (RBAC PERMISSION RESTRICTED) */}
-            <div className="rounded-[24px] border border-slate-800 bg-slate-900/80 p-6 space-y-6 shadow-2xl">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+            <div className="rounded-[24px] border border-[#2B2653]/10 dark:border-slate-800 bg-white dark:bg-slate-900/80 p-6 space-y-6 shadow-[0_15px_60px_rgba(43,38,83,0.04)] dark:shadow-2xl">
+              <div className="flex items-center justify-between border-b border-[#2B2653]/10 dark:border-slate-800 pb-4">
                 <div>
                   <div className="flex items-center gap-2">
-                    <UserPlus className="h-5 w-5 text-fuchsia-700" />
-                    <h2 className="text-lg font-bold text-[#1C1C1C]">Account Management</h2>
+                    <UserPlus className="h-5 w-5 text-fuchsia-700 dark:text-fuchsia-400" />
+                    <h2 className="text-lg font-bold text-[#1C1C1C] dark:text-white">Account Management</h2>
                   </div>
-                  <p className="mt-1 text-xs text-slate-400">
+                  <p className="mt-1 text-xs text-[#5A5A5A] dark:text-slate-400">
                     {isSuperAdmin
                       ? 'Super Admin capability: Create initial Super Dept Accounts'
                       : isSuperDept
@@ -241,13 +242,13 @@ export default function RoadGuard() {
                   </p>
                 </div>
 
-                <span className="text-[11px] font-mono font-bold px-3 py-1 rounded-full border border-slate-800 bg-slate-950 text-slate-300">
+                <span className="text-[11px] font-mono font-bold px-3 py-1 rounded-full border border-[#2B2653]/10 dark:border-slate-800 bg-[#F8F6F0] dark:bg-slate-950 text-[#2B2653] dark:text-slate-300">
                   {isSuperAdmin ? 'Super Admin Privileges' : isSuperDept ? 'Super Dept Privileges' : 'Restricted'}
                 </span>
               </div>
 
               {isDeptAdmin ? (
-                <div className="rounded-xl border border-slate-800 bg-slate-950/70 p-4 text-xs text-slate-400 flex items-center gap-3">
+                <div className="rounded-xl border border-[#2B2653]/10 dark:border-slate-800 bg-[#F8F6F0] dark:bg-slate-950/70 p-4 text-xs text-[#5A5A5A] dark:text-slate-400 flex items-center gap-3">
                   <Lock className="h-5 w-5 text-slate-500 shrink-0" />
                   <span>Account creation is managed by Super Dept Accounts & Super Admin. Dept Admins have read-only access.</span>
                 </div>
@@ -255,21 +256,21 @@ export default function RoadGuard() {
                 <form onSubmit={handleAccountSubmit} className="space-y-4">
                   <div className="grid gap-4 md:grid-cols-2">
                     <div>
-                      <label className="block text-xs font-semibold text-slate-400 mb-1">Full Name</label>
+                      <label className="block text-xs font-semibold text-[#5A5A5A] dark:text-slate-400 mb-1">Full Name</label>
                       <input
                         value={accountForm.name}
                         onChange={(e) => setAccountForm({ ...accountForm, name: e.target.value })}
-                        className="w-full rounded-xl border border-slate-800 bg-slate-950 px-3.5 py-2.5 text-xs text-white"
+                        className="w-full rounded-xl border border-[#2B2653]/15 dark:border-slate-800 bg-white dark:bg-slate-950 px-3.5 py-2.5 text-xs text-[#1C1C1C] dark:text-white"
                         placeholder="e.g. Officer Alex Rivera"
                         required
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-slate-400 mb-1">Email Address</label>
+                      <label className="block text-xs font-semibold text-[#5A5A5A] dark:text-slate-400 mb-1">Email Address</label>
                       <input
                         value={accountForm.email}
                         onChange={(e) => setAccountForm({ ...accountForm, email: e.target.value })}
-                        className="w-full rounded-xl border border-slate-800 bg-slate-950 px-3.5 py-2.5 text-xs text-white"
+                        className="w-full rounded-xl border border-[#2B2653]/15 dark:border-slate-800 bg-white dark:bg-slate-950 px-3.5 py-2.5 text-xs text-[#1C1C1C] dark:text-white"
                         placeholder="officer@roadguard.ai"
                         type="email"
                         required
@@ -279,21 +280,21 @@ export default function RoadGuard() {
 
                   <div className="grid gap-4 md:grid-cols-2">
                     <div>
-                      <label className="block text-xs font-semibold text-slate-400 mb-1">Account Role to Create</label>
+                      <label className="block text-xs font-semibold text-[#5A5A5A] dark:text-slate-400 mb-1">Account Role to Create</label>
                       <input
                         readOnly
                         value={isSuperAdmin ? 'Super Dept Account (Department Head)' : `Dept Admin (${user.department})`}
-                        className="w-full rounded-xl border border-slate-800 bg-slate-950 px-3.5 py-2.5 text-xs font-bold text-indigo-300"
+                        className="w-full rounded-xl border border-[#2B2653]/15 dark:border-slate-800 bg-[#F8F6F0] dark:bg-slate-950 px-3.5 py-2.5 text-xs font-bold text-[#2B2653] dark:text-indigo-300"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-xs font-semibold text-slate-400 mb-1">Department Tag</label>
+                      <label className="block text-xs font-semibold text-[#5A5A5A] dark:text-slate-400 mb-1">Department Tag</label>
                       {isSuperAdmin ? (
                         <select
                           value={accountForm.department}
                           onChange={(e) => setAccountForm({ ...accountForm, department: e.target.value })}
-                          className="w-full rounded-xl border border-slate-800 bg-slate-950 px-3.5 py-2.5 text-xs text-white"
+                          className="w-full rounded-xl border border-[#2B2653]/15 dark:border-slate-800 bg-white dark:bg-slate-950 px-3.5 py-2.5 text-xs text-[#1C1C1C] dark:text-white"
                         >
                           {departmentOptions.map((dept) => (
                             <option key={dept} value={dept}>{dept} Department</option>
@@ -303,7 +304,7 @@ export default function RoadGuard() {
                         <input
                           readOnly
                           value={`${user.department} Department`}
-                          className="w-full rounded-xl border border-slate-800 bg-slate-950 px-3.5 py-2.5 text-xs font-bold text-cyan-300"
+                          className="w-full rounded-xl border border-[#2B2653]/15 dark:border-slate-800 bg-[#F8F6F0] dark:bg-slate-950 px-3.5 py-2.5 text-xs font-bold text-cyan-800 dark:text-cyan-300"
                         />
                       )}
                     </div>
@@ -320,48 +321,48 @@ export default function RoadGuard() {
             </div>
 
             {/* SECTION 2: WORK ORDERS STATUS & MANAGEMENT */}
-            <div className="rounded-[24px] border border-slate-800 bg-slate-900/80 p-6 space-y-6 shadow-2xl">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+            <div className="rounded-[24px] border border-[#2B2653]/10 dark:border-slate-800 bg-white dark:bg-slate-900/80 p-6 space-y-6 shadow-[0_15px_60px_rgba(43,38,83,0.04)] dark:shadow-2xl">
+              <div className="flex items-center justify-between border-b border-[#2B2653]/10 dark:border-slate-800 pb-4">
                 <div>
                   <div className="flex items-center gap-2">
-                    <Briefcase className="h-5 w-5 text-amber-700" />
-                    <h2 className="text-lg font-bold text-[#1C1C1C]">Department Work Orders</h2>
+                    <Briefcase className="h-5 w-5 text-amber-700 dark:text-amber-400" />
+                    <h2 className="text-lg font-bold text-[#1C1C1C] dark:text-white">Department Work Orders</h2>
                   </div>
-                  <p className="mt-1 text-xs text-slate-400">
-                    Status progression: <code className="text-amber-300">yet_to_start</code> → <code className="text-cyan-300">working</code> → <code className="text-emerald-300">completed</code>
+                  <p className="mt-1 text-xs text-[#5A5A5A] dark:text-slate-400">
+                    Status progression: <code className="text-amber-700 dark:text-amber-300 font-bold">yet_to_start</code> → <code className="text-cyan-700 dark:text-cyan-300 font-bold">working</code> → <code className="text-emerald-700 dark:text-emerald-300 font-bold">completed</code>
                   </p>
                 </div>
 
-                <span className="text-[11px] font-mono font-bold px-3 py-1 rounded-full border border-slate-800 bg-slate-950 text-slate-300">
+                <span className="text-[11px] font-mono font-bold px-3 py-1 rounded-full border border-[#2B2653]/10 dark:border-slate-800 bg-[#F8F6F0] dark:bg-slate-950 text-[#5A5A5A] dark:text-slate-300">
                   {isSuperAdmin ? 'System-Wide (Read Only)' : `${user.department} Dept Scope`}
                 </span>
               </div>
 
               {canManageWorkOrders && (
-                <form onSubmit={handleWorkOrderSubmit} className="space-y-4 rounded-xl border border-slate-800 bg-slate-950/60 p-4">
-                  <p className="text-xs font-bold text-[#1C1C1C] uppercase tracking-wider">Create New Work Order</p>
+                <form onSubmit={handleWorkOrderSubmit} className="space-y-4 rounded-xl border border-[#2B2653]/10 dark:border-slate-800 bg-[#F8F6F0] dark:bg-slate-950/60 p-4">
+                  <p className="text-xs font-bold text-[#1C1C1C] dark:text-white uppercase tracking-wider">Create New Work Order</p>
                   <div className="grid gap-3 md:grid-cols-2">
                     <input
                       value={workOrderForm.title}
                       onChange={(e) => setWorkOrderForm({ ...workOrderForm, title: e.target.value })}
-                      className="rounded-xl border border-slate-800 bg-slate-950 px-3.5 py-2 text-xs text-white"
+                      className="rounded-xl border border-[#2B2653]/15 dark:border-slate-800 bg-white dark:bg-slate-950 px-3.5 py-2 text-xs text-[#1C1C1C] dark:text-white"
                       placeholder="Work Order Title"
                       required
                     />
                     <input
                       value={workOrderForm.engineers}
                       onChange={(e) => setWorkOrderForm({ ...workOrderForm, engineers: e.target.value })}
-                      className="rounded-xl border border-slate-800 bg-slate-950 px-3.5 py-2 text-xs text-white"
+                      className="rounded-xl border border-[#2B2653]/15 dark:border-slate-800 bg-white dark:bg-slate-950 px-3.5 py-2 text-xs text-[#1C1C1C] dark:text-white"
                       placeholder="Assigned Engineers (e.g. Alex R.)"
                     />
                   </div>
                   <input
                     value={workOrderForm.route}
                     onChange={(e) => setWorkOrderForm({ ...workOrderForm, route: e.target.value })}
-                    className="w-full rounded-xl border border-slate-800 bg-slate-950 px-3.5 py-2 text-xs text-white"
+                    className="w-full rounded-xl border border-[#2B2653]/15 dark:border-slate-800 bg-white dark:bg-slate-950 px-3.5 py-2 text-xs text-[#1C1C1C] dark:text-white"
                     placeholder="Route Corridor / Polyline description"
                   />
-                  <button type="submit" className="w-full py-2.5 rounded-xl bg-emerald-600 text-white font-bold text-xs hover:bg-emerald-500 transition">
+                  <button type="submit" className="w-full py-2.5 rounded-xl bg-emerald-600 text-white font-bold text-xs hover:bg-emerald-500 transition shadow-md shadow-emerald-600/20">
                     Submit Work Order
                   </button>
                 </form>
@@ -371,22 +372,22 @@ export default function RoadGuard() {
               <div className="space-y-3">
                 {visibleWorkOrders.length > 0 ? (
                   visibleWorkOrders.map((order) => (
-                    <div key={order.id} className="rounded-2xl border border-slate-800 bg-slate-950/80 p-4 space-y-3">
+                    <div key={order.id} className="rounded-2xl border border-[#2B2653]/10 dark:border-slate-800 bg-[#F8F6F0] dark:bg-slate-950/80 p-4 space-y-3">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="font-bold text-[#1C1C1C] text-xs">{order.title}</p>
-                          <p className="text-[11px] text-slate-400 mt-0.5">Engineers: {order.engineers}</p>
+                          <p className="font-bold text-[#1C1C1C] dark:text-white text-xs">{order.title}</p>
+                          <p className="text-[11px] text-[#5A5A5A] dark:text-slate-400 mt-0.5">Engineers: {order.engineers}</p>
                         </div>
-                        <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border border-amber-500/30 bg-amber-500/10 text-amber-300">
+                        <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border border-amber-500/30 bg-amber-50 dark:bg-amber-500/10 text-amber-800 dark:text-amber-300">
                           {order.department}
                         </span>
                       </div>
 
-                      <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-800 text-xs">
-                        <span className="text-slate-400 font-mono text-[11px]">{order.schedule}</span>
+                      <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-[#2B2653]/10 dark:border-slate-800 text-xs">
+                        <span className="text-[#5A5A5A] dark:text-slate-400 font-mono text-[11px]">{order.schedule}</span>
 
                         {canManageWorkOrders ? (
-                          <div className="flex items-center gap-1 bg-slate-900 p-1 rounded-xl border border-slate-800">
+                          <div className="flex items-center gap-1 bg-white dark:bg-slate-900 p-1 rounded-xl border border-[#2B2653]/10 dark:border-slate-800">
                             {['yet_to_start', 'working', 'completed'].map((status) => {
                               const isCurrent = order.status === status;
                               return (
@@ -395,11 +396,11 @@ export default function RoadGuard() {
                                   onClick={() => updateWorkOrderStatus(order.id, status)}
                                   className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition uppercase ${isCurrent
                                       ? status === 'completed'
-                                        ? 'bg-emerald-500 text-white shadow'
+                                        ? 'bg-emerald-600 text-white shadow'
                                         : status === 'working'
-                                          ? 'bg-cyan-500 text-white shadow'
-                                          : 'bg-amber-500 text-white shadow'
-                                      : 'text-slate-400 hover:text-white'
+                                          ? 'bg-cyan-600 text-white shadow'
+                                          : 'bg-amber-600 text-white shadow'
+                                      : 'text-[#5A5A5A] hover:text-[#1C1C1C] dark:text-slate-400 dark:hover:text-white'
                                     }`}
                                 >
                                   {status.replace('_', ' ')}
@@ -408,7 +409,7 @@ export default function RoadGuard() {
                             })}
                           </div>
                         ) : (
-                          <span className="text-[11px] font-bold uppercase px-2.5 py-0.5 rounded bg-slate-800 text-slate-300">
+                          <span className="text-[11px] font-bold uppercase px-2.5 py-0.5 rounded bg-white dark:bg-slate-800 text-[#1C1C1C] dark:text-slate-300 border border-[#2B2653]/10 dark:border-slate-700">
                             Status: {order.status}
                           </span>
                         )}
@@ -428,41 +429,41 @@ export default function RoadGuard() {
           <div className="space-y-8">
 
             {/* SECTION 3: WORK-CONTRACT NOTICES (SUPER DEPT PUBLISHING ONLY) */}
-            <div className="rounded-[24px] border border-slate-800 bg-slate-900/80 p-6 space-y-6 shadow-2xl">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+            <div className="rounded-[24px] border border-[#2B2653]/10 dark:border-slate-800 bg-white dark:bg-slate-900/80 p-6 space-y-6 shadow-[0_15px_60px_rgba(43,38,83,0.04)] dark:shadow-2xl">
+              <div className="flex items-center justify-between border-b border-[#2B2653]/10 dark:border-slate-800 pb-4">
                 <div>
                   <div className="flex items-center gap-2">
-                    <BellRing className="h-5 w-5 text-cyan-700" />
-                    <h2 className="text-lg font-bold text-[#1C1C1C]">Work-Contract Notices</h2>
+                    <BellRing className="h-5 w-5 text-cyan-700 dark:text-cyan-400" />
+                    <h2 className="text-lg font-bold text-[#1C1C1C] dark:text-white">Work-Contract Notices</h2>
                   </div>
-                  <p className="mt-1 text-xs text-slate-400">
+                  <p className="mt-1 text-xs text-[#5A5A5A] dark:text-slate-400">
                     {canPublishNotices
                       ? 'Publish official work-contract notices to Super Admin and Dept Admins'
                       : 'View-only notice board published by department heads'}
                   </p>
                 </div>
 
-                <span className="text-[11px] font-mono font-bold px-3 py-1 rounded-full border border-slate-800 bg-slate-950 text-slate-300">
+                <span className="text-[11px] font-mono font-bold px-3 py-1 rounded-full border border-[#2B2653]/10 dark:border-slate-800 bg-[#F8F6F0] dark:bg-slate-950 text-[#2B2653] dark:text-slate-300">
                   {canPublishNotices ? 'Super Dept Publisher' : 'Read Only'}
                 </span>
               </div>
 
               {canPublishNotices ? (
-                <form onSubmit={handleNoticeSubmit} className="space-y-3 rounded-xl border border-slate-800 bg-slate-950/60 p-4">
-                  <p className="text-xs font-bold text-[#1C1C1C] uppercase tracking-wider flex items-center gap-1.5">
-                    <Send className="h-3.5 w-3.5 text-cyan-700" /> Publish Official Notice
+                <form onSubmit={handleNoticeSubmit} className="space-y-3 rounded-xl border border-[#2B2653]/10 dark:border-slate-800 bg-[#F8F6F0] dark:bg-slate-950/60 p-4">
+                  <p className="text-xs font-bold text-[#1C1C1C] dark:text-white uppercase tracking-wider flex items-center gap-1.5">
+                    <Send className="h-3.5 w-3.5 text-cyan-700 dark:text-cyan-400" /> Publish Official Notice
                   </p>
                   <input
                     value={noticeForm.title}
                     onChange={(e) => setNoticeForm({ ...noticeForm, title: e.target.value })}
-                    className="w-full rounded-xl border border-slate-800 bg-slate-950 px-3.5 py-2 text-xs text-white"
+                    className="w-full rounded-xl border border-[#2B2653]/15 dark:border-slate-800 bg-white dark:bg-slate-950 px-3.5 py-2 text-xs text-[#1C1C1C] dark:text-white"
                     placeholder="Notice Title"
                     required
                   />
                   <textarea
                     value={noticeForm.detail}
                     onChange={(e) => setNoticeForm({ ...noticeForm, detail: e.target.value })}
-                    className="w-full min-h-20 rounded-xl border border-slate-800 bg-slate-950 px-3.5 py-2 text-xs text-white"
+                    className="w-full min-h-20 rounded-xl border border-[#2B2653]/15 dark:border-slate-800 bg-white dark:bg-slate-950 px-3.5 py-2 text-xs text-[#1C1C1C] dark:text-white"
                     placeholder="Provide details about lane closures, trenching windows, or contract updates..."
                     required
                   />
@@ -471,7 +472,7 @@ export default function RoadGuard() {
                   </button>
                 </form>
               ) : (
-                <div className="rounded-xl border border-slate-800 bg-slate-950/70 p-3 text-[11px] text-slate-400 flex items-center gap-2">
+                <div className="rounded-xl border border-[#2B2653]/10 dark:border-slate-800 bg-[#F8F6F0] dark:bg-slate-950/70 p-3 text-[11px] text-[#5A5A5A] dark:text-slate-400 flex items-center gap-2">
                   <Lock className="h-4 w-4 text-slate-500 shrink-0" />
                   <span>
                     {isSuperAdmin
@@ -484,15 +485,15 @@ export default function RoadGuard() {
               {/* Notice List */}
               <div className="space-y-3">
                 {visibleNotices.map((notice) => (
-                  <div key={notice.id} className="rounded-2xl border border-slate-800 bg-slate-950/80 p-4 space-y-2">
+                  <div key={notice.id} className="rounded-2xl border border-[#2B2653]/10 dark:border-slate-800 bg-[#F8F6F0] dark:bg-slate-950/80 p-4 space-y-2">
                     <div className="flex items-center justify-between">
-                      <p className="font-bold text-[#1C1C1C] text-xs">{notice.title}</p>
-                      <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-300 border border-cyan-500/20">
+                      <p className="font-bold text-[#1C1C1C] dark:text-white text-xs">{notice.title}</p>
+                      <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-cyan-50 dark:bg-cyan-500/10 text-cyan-800 dark:text-cyan-300 border border-cyan-300 dark:border-cyan-500/20">
                         {notice.department}
                       </span>
                     </div>
-                    <p className="text-xs text-slate-300 leading-relaxed">{notice.detail}</p>
-                    <p className="text-[10px] text-slate-500 font-mono pt-1 border-t border-slate-800">
+                    <p className="text-xs text-[#5A5A5A] dark:text-slate-300 leading-relaxed">{notice.detail}</p>
+                    <p className="text-[10px] text-[#5A5A5A] dark:text-slate-500 font-mono pt-1 border-t border-[#2B2653]/10 dark:border-slate-800">
                       Published by: {notice.published_by || 'Super Dept Head'}
                     </p>
                   </div>
@@ -501,21 +502,21 @@ export default function RoadGuard() {
             </div>
 
             {/* SECTION 4: COMMUNITY FEED (COMPLAINTS TRIAGE & ASSIGNMENT) */}
-            <div className="rounded-[24px] border border-slate-800 bg-slate-900/80 p-6 space-y-6 shadow-2xl">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+            <div className="rounded-[24px] border border-[#2B2653]/10 dark:border-slate-800 bg-white dark:bg-slate-900/80 p-6 space-y-6 shadow-[0_15px_60px_rgba(43,38,83,0.04)] dark:shadow-2xl">
+              <div className="flex items-center justify-between border-b border-[#2B2653]/10 dark:border-slate-800 pb-4">
                 <div>
                   <div className="flex items-center gap-2">
-                    <AlertCircle className="h-5 w-5 text-rose-700" />
-                    <h2 className="text-lg font-bold text-[#1C1C1C]">Community Complaints Triage</h2>
+                    <AlertCircle className="h-5 w-5 text-rose-700 dark:text-rose-400" />
+                    <h2 className="text-lg font-bold text-[#1C1C1C] dark:text-white">Community Complaints Triage</h2>
                   </div>
-                  <p className="mt-1 text-xs text-slate-400">
+                  <p className="mt-1 text-xs text-[#5A5A5A] dark:text-slate-400">
                     {canManageComplaints
                       ? `Triage incoming complaints for ${user.department} Department & assign staff`
                       : 'System-wide community complaints feed (Read Only)'}
                   </p>
                 </div>
 
-                <span className="text-[11px] font-mono font-bold px-3 py-1 rounded-full border border-slate-800 bg-slate-950 text-slate-300">
+                <span className="text-[11px] font-mono font-bold px-3 py-1 rounded-full border border-[#2B2653]/10 dark:border-slate-800 bg-[#F8F6F0] dark:bg-slate-950 text-[#2B2653] dark:text-slate-300">
                   {isSuperAdmin ? 'All Depts' : user.department}
                 </span>
               </div>
@@ -525,20 +526,20 @@ export default function RoadGuard() {
                 {visibleComplaints.map((complaint) => {
                   const staffOptions = departmentStaff[complaint.department] || departmentStaff['Road'];
                   return (
-                    <div key={complaint.id} className="rounded-2xl border border-slate-800 bg-slate-950/80 p-4 space-y-3">
+                    <div key={complaint.id} className="rounded-2xl border border-[#2B2653]/10 dark:border-slate-800 bg-[#F8F6F0] dark:bg-slate-950/80 p-4 space-y-3">
                       <div className="flex items-start justify-between gap-2">
                         <div>
-                          <p className="font-bold text-[#1C1C1C] text-xs">{complaint.title}</p>
-                          <p className="text-[11px] text-slate-400 mt-0.5">{complaint.location}</p>
+                          <p className="font-bold text-[#1C1C1C] dark:text-white text-xs">{complaint.title}</p>
+                          <p className="text-[11px] text-[#5A5A5A] dark:text-slate-400 mt-0.5">{complaint.location}</p>
                         </div>
-                        <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 shrink-0">
+                        <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-indigo-50 dark:bg-indigo-500/10 text-indigo-800 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-500/20 shrink-0">
                           {complaint.status}
                         </span>
                       </div>
 
                       {/* Complaint Photo Evidence Display with NVIDIA AI Classification */}
                       {complaint.image ? (
-                        <div className="relative h-48 w-full overflow-hidden rounded-xl border border-slate-800 bg-slate-900 group">
+                        <div className="relative h-48 w-full overflow-hidden rounded-xl border border-[#2B2653]/10 dark:border-slate-800 bg-slate-900 group">
                           <img
                             src={complaint.image}
                             alt={complaint.title}
@@ -557,34 +558,32 @@ export default function RoadGuard() {
                             <span>NVIDIA AI: {complaint.authenticity || 'REAL'} ({complaint.confidence}%)</span>
                           </div>
 
-                          <div className="absolute bottom-2 left-2 rounded-lg bg-slate-950/90 px-2.5 py-1 text-[10px] font-mono text-slate-300 backdrop-blur-md border border-slate-800 flex items-center gap-1.5">
+                          <div className="absolute bottom-2 left-2 rounded-lg bg-black/80 px-2.5 py-1 text-[10px] font-mono text-slate-200 backdrop-blur-md border border-slate-800 flex items-center gap-1.5">
                             <Sparkles className="h-3 w-3 text-cyan-400" />
                             <span>{complaint.authenticity === 'FAKE' ? 'No Physical Hazard Detected' : 'Llama-3.2-Vision Verified'}</span>
                           </div>
                         </div>
                       ) : (
-                        <div className="flex flex-col items-center justify-center h-32 rounded-xl border border-dashed border-rose-500/40 bg-rose-950/20 p-4 text-center">
-                          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/40 text-[10px] font-mono font-bold">
-                            <AlertCircle className="h-3.5 w-3.5 text-rose-400" />
+                        <div className="flex flex-col items-center justify-center h-32 rounded-xl border border-dashed border-rose-500/40 bg-rose-50 dark:bg-rose-950/20 p-4 text-center">
+                          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-100 dark:bg-rose-500/20 text-rose-800 dark:text-rose-300 border border-rose-300 dark:border-rose-500/40 text-[10px] font-mono font-bold">
+                            <AlertCircle className="h-3.5 w-3.5 text-rose-600 dark:text-rose-400" />
                             <span>NVIDIA AI: FAKE / NO EVIDENCE ({complaint.confidence}%)</span>
                           </div>
-                          <p className="text-[11px] text-slate-400 mt-2">No valid physical hazard photo was attached to this report.</p>
+                          <p className="text-[11px] text-[#5A5A5A] dark:text-slate-400 mt-2">No valid physical hazard photo was attached to this report.</p>
                         </div>
                       )}
 
-                      <p className="text-xs text-slate-300 leading-relaxed">{complaint.description}</p>
-
-
+                      <p className="text-xs text-[#5A5A5A] dark:text-slate-300 leading-relaxed">{complaint.description}</p>
 
                       {/* Staff Assignment & Status Buttons for Super Dept / Dept Admin */}
                       {canManageComplaints ? (
-                        <div className="space-y-2 pt-2 border-t border-slate-800">
+                        <div className="space-y-2 pt-2 border-t border-[#2B2653]/10 dark:border-slate-800">
                           <div className="flex items-center justify-between gap-2">
-                            <label className="text-[11px] font-semibold text-slate-400">Assign Staff:</label>
+                            <label className="text-[11px] font-semibold text-[#5A5A5A] dark:text-slate-400">Assign Staff:</label>
                             <select
                               value={complaint.assignedStaff || ''}
                               onChange={(e) => assignStaffToComplaint(complaint.id, e.target.value)}
-                              className="rounded-lg border border-slate-800 bg-slate-900 px-2.5 py-1 text-xs text-white min-w-[160px]"
+                              className="rounded-lg border border-[#2B2653]/15 dark:border-slate-800 bg-white dark:bg-slate-900 px-2.5 py-1 text-xs text-[#1C1C1C] dark:text-white min-w-[160px]"
                             >
                               <option value="">-- Select Staff --</option>
                               {staffOptions.map((staff) => (
@@ -594,29 +593,29 @@ export default function RoadGuard() {
                           </div>
 
                           <div className="flex items-center justify-between gap-2">
-                            <span className="text-[11px] font-semibold text-slate-400">Triage Action:</span>
+                            <span className="text-[11px] font-semibold text-[#5A5A5A] dark:text-slate-400">Triage Action:</span>
                             <div className="flex items-center gap-1.5">
                               <button
                                 onClick={() => updateComplaintStatus(complaint.id, 'Accepted')}
-                                className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/30 transition"
+                                className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-300 hover:bg-emerald-100 dark:bg-emerald-500/20 dark:text-emerald-300 dark:border-emerald-500/30 transition"
                               >
                                 Accept
                               </button>
                               <button
                                 onClick={() => updateComplaintStatus(complaint.id, 'Denied')}
-                                className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30 hover:bg-rose-500/30 transition"
+                                className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-rose-50 text-rose-800 border border-rose-300 hover:bg-rose-100 dark:bg-rose-500/20 dark:text-rose-300 dark:border-rose-500/30 transition"
                               >
                                 Deny
                               </button>
                               <button
                                 onClick={() => updateComplaintStatus(complaint.id, 'In Progress')}
-                                className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 hover:bg-cyan-500/30 transition"
+                                className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-cyan-50 text-cyan-800 border border-cyan-300 hover:bg-cyan-100 dark:bg-cyan-500/20 dark:text-cyan-300 dark:border-cyan-500/30 transition"
                               >
                                 In Progress
                               </button>
                               <button
                                 onClick={() => updateComplaintStatus(complaint.id, 'Resolved')}
-                                className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 hover:bg-indigo-500/30 transition"
+                                className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-indigo-50 text-indigo-800 border border-indigo-300 hover:bg-indigo-100 dark:bg-indigo-500/20 dark:text-indigo-300 dark:border-indigo-500/30 transition"
                               >
                                 Resolved
                               </button>
@@ -624,9 +623,9 @@ export default function RoadGuard() {
                           </div>
                         </div>
                       ) : (
-                        <div className="pt-2 border-t border-slate-800 text-[11px] text-slate-400 flex items-center justify-between font-mono">
-                          <span>Assigned: <strong className="text-slate-200">{complaint.assignedStaff || 'Unassigned'}</strong></span>
-                          <span className={complaint.authenticity === 'FAKE' ? 'text-rose-400 font-bold' : 'text-emerald-400 font-bold'}>
+                        <div className="pt-2 border-t border-[#2B2653]/10 dark:border-slate-800 text-[11px] text-[#5A5A5A] dark:text-slate-400 flex items-center justify-between font-mono">
+                          <span>Assigned: <strong className="text-[#1C1C1C] dark:text-white">{complaint.assignedStaff || 'Unassigned'}</strong></span>
+                          <span className={complaint.authenticity === 'FAKE' ? 'text-rose-700 dark:text-rose-400 font-bold' : 'text-emerald-700 dark:text-emerald-400 font-bold'}>
                             {complaint.authenticity === 'FAKE' ? 'Flagged FAKE' : 'NVIDIA Verified'}: {complaint.confidence}%
                           </span>
                         </div>
@@ -650,34 +649,34 @@ export default function RoadGuard() {
 
       {/* TAB 3: ACCOUNT DIRECTORY */}
       {activeTab === 'accounts' && (
-        <div className="rounded-[24px] border border-slate-800 bg-slate-900/80 p-6 space-y-6 shadow-2xl">
-          <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+        <div className="rounded-[24px] border border-[#2B2653]/10 dark:border-slate-800 bg-white dark:bg-slate-900/80 p-6 space-y-6 shadow-[0_15px_60px_rgba(43,38,83,0.04)] dark:shadow-2xl">
+          <div className="flex items-center justify-between border-b border-[#2B2653]/10 dark:border-slate-800 pb-4">
             <div>
-              <h2 className="text-lg font-bold text-[#1C1C1C]">System Accounts Directory</h2>
-              <p className="text-xs text-slate-400">All registered Super Admin, Super Dept, and Dept Admin user accounts</p>
+              <h2 className="text-lg font-bold text-[#1C1C1C] dark:text-white">System Accounts Directory</h2>
+              <p className="text-xs text-[#5A5A5A] dark:text-slate-400">All registered Super Admin, Super Dept, and Dept Admin user accounts</p>
             </div>
-            <span className="text-xs font-mono font-bold text-fuchsia-400 bg-fuchsia-500/10 px-3 py-1 rounded-full border border-fuchsia-500/30">
+            <span className="text-xs font-mono font-bold text-fuchsia-800 bg-fuchsia-50 dark:text-fuchsia-400 dark:bg-fuchsia-500/10 px-3 py-1 rounded-full border border-fuchsia-200 dark:border-fuchsia-500/30">
               {userAccounts.length} Total Accounts
             </span>
           </div>
 
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {userAccounts.map((acc) => (
-              <div key={acc.id} className="rounded-2xl border border-slate-800 bg-slate-950/80 p-4 space-y-2 font-mono text-xs">
+              <div key={acc.id} className="rounded-2xl border border-[#2B2653]/10 dark:border-slate-800 bg-[#F8F6F0] dark:bg-slate-950/80 p-4 space-y-2 font-mono text-xs">
                 <div className="flex items-center justify-between">
-                  <p className="font-bold text-[#1C1C1C] font-sans text-sm">{acc.name}</p>
+                  <p className="font-bold text-[#1C1C1C] dark:text-white font-sans text-sm">{acc.name}</p>
                   <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded border ${acc.role === 'super_admin'
-                      ? 'bg-fuchsia-500/20 text-fuchsia-300 border-fuchsia-500/30'
+                      ? 'bg-fuchsia-50 text-fuchsia-800 border-fuchsia-200 dark:bg-fuchsia-500/20 dark:text-fuchsia-300 dark:border-fuchsia-500/30'
                       : acc.role === 'super_dept'
-                        ? 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30'
-                        : 'bg-cyan-500/20 text-cyan-300 border-cyan-500/30'
+                        ? 'bg-indigo-50 text-indigo-800 border-indigo-200 dark:bg-indigo-500/20 dark:text-indigo-300 dark:border-indigo-500/30'
+                        : 'bg-cyan-50 text-cyan-800 border-cyan-200 dark:bg-cyan-500/20 dark:text-cyan-300 dark:border-cyan-500/30'
                     }`}>
                     {acc.role}
                   </span>
                 </div>
-                <p className="text-slate-400">{acc.email}</p>
-                <p className="text-[#2B2653] pt-2 border-t border-slate-800 font-sans text-xs">
-                  Department: <strong className="text-[#1C1C1C]">{acc.department}</strong>
+                <p className="text-[#5A5A5A] dark:text-slate-400">{acc.email}</p>
+                <p className="text-[#2B2653] dark:text-slate-400 pt-2 border-t border-[#2B2653]/10 dark:border-slate-800 font-sans text-xs">
+                  Department: <strong className="text-[#1C1C1C] dark:text-white">{acc.department}</strong>
                 </p>
               </div>
             ))}

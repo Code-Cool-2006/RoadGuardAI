@@ -304,15 +304,15 @@ export default function UndergroundConflictMap() {
   return (
     <div className="space-y-6">
       {/* Top Header Banner */}
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between rounded-[24px] border border-slate-800 bg-slate-900/80 p-6 shadow-2xl backdrop-blur-md">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between rounded-[24px] border border-[#2B2653]/10 dark:border-slate-800 bg-white dark:bg-slate-900/80 p-6 shadow-[0_15px_60px_rgba(43,38,83,0.04)] dark:shadow-2xl backdrop-blur-md">
         <div>
-          <div className="inline-flex items-center gap-2 rounded-full border border-indigo-500/30 bg-indigo-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-indigo-300">
+          <div className="inline-flex items-center gap-2 rounded-full border border-[#2B2653]/15 bg-[#2B2653]/5 dark:border-indigo-500/30 dark:bg-indigo-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-[#2B2653] dark:text-indigo-300">
             <Sparkles className="h-3.5 w-3.5" /> Spatial Collision & Trenching Engine
           </div>
-          <h1 className="mt-2 text-2xl font-bold text-white sm:text-3xl">
+          <h1 className="mt-2 text-2xl font-bold text-[#1C1C1C] dark:text-white sm:text-3xl">
             Underground Corridor Conflict Map
           </h1>
-          <p className="mt-1 max-w-2xl text-sm text-slate-300">
+          <p className="mt-1 max-w-2xl text-sm text-[#5A5A5A] dark:text-slate-300">
             Real-time PostGIS buffer collision detection across municipal infrastructure corridors (Belagavi, Karnataka).
           </p>
         </div>
@@ -320,7 +320,7 @@ export default function UndergroundConflictMap() {
         <div className="flex flex-wrap items-center gap-3">
           <button
             onClick={handleResetPolygons}
-            className="inline-flex items-center gap-2 rounded-xl border border-indigo-500/30 bg-indigo-500/10 px-4 py-2.5 text-xs font-semibold text-indigo-300 hover:bg-indigo-500/20 transition"
+            className="inline-flex items-center gap-2 rounded-xl border border-[#2B2653]/20 bg-[#2B2653]/5 dark:border-indigo-500/30 dark:bg-indigo-500/10 px-4 py-2.5 text-xs font-semibold text-[#2B2653] dark:text-indigo-300 hover:bg-[#2B2653]/10 dark:hover:bg-indigo-500/20 transition"
           >
             <RefreshCw className="h-4 w-4" />
             Reset 2 Polygons
@@ -329,7 +329,7 @@ export default function UndergroundConflictMap() {
           {workOrders.length > 0 && (
             <button
               onClick={handleClearMap}
-              className="inline-flex items-center gap-2 rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-2.5 text-xs font-semibold text-rose-300 hover:bg-rose-500/20 transition"
+              className="inline-flex items-center gap-2 rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-2.5 text-xs font-semibold text-rose-700 dark:text-rose-300 hover:bg-rose-500/20 transition"
             >
               Clear Map
             </button>
@@ -348,14 +348,14 @@ export default function UndergroundConflictMap() {
       {/* Main Interactive Map & Triage Layout */}
       <div className="grid gap-6 xl:grid-cols-[1fr_420px]">
         {/* MAP CONTAINER CARD */}
-        <div className="relative rounded-[24px] border border-slate-800 bg-slate-950 overflow-hidden min-h-[580px] shadow-2xl flex flex-col">
+        <div className="relative rounded-[24px] border border-[#2B2653]/10 dark:border-slate-800 bg-slate-950 overflow-hidden min-h-[580px] shadow-2xl flex flex-col">
           {/* Leaflet DOM container */}
           <div ref={mapRef} className="absolute inset-0 z-0 h-full w-full bg-slate-950" />
 
           {/* Top Left Floating Layer Checkbox Overlay */}
-          <div className="absolute top-4 left-4 z-10 w-52 rounded-2xl border border-slate-800/90 bg-slate-950/90 p-4 shadow-2xl backdrop-blur-md text-white space-y-3">
-            <div className="flex items-center gap-2 border-b border-slate-800 pb-2 text-xs font-bold uppercase tracking-wider text-slate-300">
-              <Layers className="h-4 w-4 text-indigo-400" />
+          <div className="absolute top-4 left-4 z-10 w-52 rounded-2xl border border-slate-200/80 dark:border-slate-800/90 bg-white/95 dark:bg-slate-950/90 p-4 shadow-2xl backdrop-blur-md text-[#1C1C1C] dark:text-white space-y-3">
+            <div className="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-2 text-xs font-bold uppercase tracking-wider text-[#1C1C1C] dark:text-slate-300">
+              <Layers className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
               <span>Corridor Layers</span>
             </div>
 
@@ -366,14 +366,14 @@ export default function UndergroundConflictMap() {
                 return (
                   <label
                     key={key}
-                    className="flex items-center justify-between cursor-pointer group hover:bg-slate-900/60 p-1.5 rounded-lg transition"
+                    className="flex items-center justify-between cursor-pointer group hover:bg-slate-100 dark:hover:bg-slate-900/60 p-1.5 rounded-lg transition"
                   >
                     <div className="flex items-center gap-2.5">
                       <span
-                        className="h-3 w-3 rounded-full border border-white/20"
+                        className="h-3 w-3 rounded-full border border-slate-400/40"
                         style={{ backgroundColor: dept.color }}
                       />
-                      <span className="font-medium text-slate-200 group-hover:text-white">
+                      <span className="font-medium text-[#1C1C1C] dark:text-slate-200 group-hover:text-black dark:group-hover:text-white">
                         {dept.name}
                       </span>
                     </div>
@@ -381,7 +381,7 @@ export default function UndergroundConflictMap() {
                       type="checkbox"
                       checked={checked}
                       onChange={() => toggleDept(key)}
-                      className="rounded border-slate-700 bg-slate-900 text-indigo-500 focus:ring-0 cursor-pointer"
+                      className="rounded border-slate-400 dark:border-slate-700 bg-white dark:bg-slate-900 text-indigo-600 focus:ring-0 cursor-pointer"
                     />
                   </label>
                 );
@@ -390,20 +390,20 @@ export default function UndergroundConflictMap() {
           </div>
 
           {/* Top Right Conflict Summary Badge */}
-          <div className="absolute top-4 right-4 z-10 flex items-center gap-2 rounded-full border border-rose-500/30 bg-slate-950/90 px-4 py-2 text-xs font-bold text-white shadow-2xl backdrop-blur-md">
-            <ShieldAlert className="h-4 w-4 text-rose-400 animate-pulse" />
-            <span>{conflicts.length} Active Conflict Zones</span>
+          <div className="absolute top-4 right-4 z-10 flex items-center gap-2 rounded-full border border-rose-500/40 bg-white/95 dark:bg-slate-950/90 px-4 py-2 text-xs font-bold text-rose-700 dark:text-white shadow-2xl backdrop-blur-md">
+            <ShieldAlert className="h-4 w-4 text-rose-600 dark:text-rose-400 animate-pulse" />
+            <span className="text-[#1C1C1C] dark:text-white font-bold">{conflicts.length} Active Conflict Zones</span>
           </div>
 
           {/* Bottom Left Legend for 2 Polygons & Intersection Red Dot */}
-          <div className="absolute bottom-4 left-4 z-10 flex flex-wrap items-center gap-3 rounded-xl border border-slate-800/90 bg-slate-950/90 px-4 py-2.5 text-xs text-slate-300 backdrop-blur-md">
-            <span className="flex items-center gap-1.5 text-xs font-medium text-cyan-300">
-              <span className="h-3 w-3 rounded-sm bg-cyan-500/40 border border-cyan-400" /> Polygon A (Water)
+          <div className="absolute bottom-4 left-4 z-10 flex flex-wrap items-center gap-3 rounded-xl border border-slate-200/80 dark:border-slate-800/90 bg-white/95 dark:bg-slate-950/90 px-4 py-2.5 text-xs text-[#1C1C1C] dark:text-slate-300 backdrop-blur-md shadow-lg">
+            <span className="flex items-center gap-1.5 text-xs font-semibold text-cyan-700 dark:text-cyan-300">
+              <span className="h-3 w-3 rounded-sm bg-cyan-500/40 border border-cyan-600 dark:border-cyan-400" /> Polygon A (Water)
             </span>
-            <span className="flex items-center gap-1.5 text-xs font-medium text-pink-300">
-              <span className="h-3 w-3 rounded-sm bg-pink-500/40 border border-pink-400" /> Polygon B (Telecom)
+            <span className="flex items-center gap-1.5 text-xs font-semibold text-pink-700 dark:text-pink-300">
+              <span className="h-3 w-3 rounded-sm bg-pink-500/40 border border-pink-600 dark:border-pink-400" /> Polygon B (Telecom)
             </span>
-            <span className="flex items-center gap-1.5 text-xs font-bold text-rose-400">
+            <span className="flex items-center gap-1.5 text-xs font-bold text-rose-700 dark:text-rose-400">
               <span className="h-3 w-3 rounded-full bg-rose-600 animate-ping" /> Intersection (Red Dot Pin)
             </span>
           </div>
@@ -412,20 +412,15 @@ export default function UndergroundConflictMap() {
         {/* RIGHT SIDEBAR: ACTIONABLE TRIAGE & UNIFIED SCHEDULING */}
         <div className="space-y-6">
           {/* CONFLICT TRIAGE DETAILS CARD */}
-          <div className="rounded-[24px] border border-slate-800 bg-slate-900/90 p-6 text-slate-200 shadow-2xl backdrop-blur-md space-y-6">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+          <div className="rounded-[24px] border border-[#2B2653]/10 dark:border-slate-800 bg-white dark:bg-slate-900/90 p-6 text-[#1C1C1C] dark:text-slate-200 shadow-[0_15px_60px_rgba(43,38,83,0.04)] dark:shadow-2xl backdrop-blur-md space-y-6">
+            <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-4">
               <div>
-                <h3 className="text-lg font-bold text-white">Conflict Details</h3>
-                <p className="text-xs text-slate-400 mt-0.5">Actionable Spatial & Temporal Triage</p>
+                <h3 className="text-lg font-bold text-[#1C1C1C] dark:text-white">Conflict Details</h3>
+                <p className="text-xs text-[#5A5A5A] dark:text-slate-400 mt-0.5">Actionable Spatial & Temporal Triage</p>
               </div>
               {selectedConflict && (
                 <span
-                  className="rounded-full px-3 py-1 text-xs font-extrabold uppercase tracking-wide border"
-                  style={{
-                    backgroundColor: `${selectedConflict.color}15`,
-                    borderColor: `${selectedConflict.color}40`,
-                    color: selectedConflict.color,
-                  }}
+                  className="rounded-full px-3 py-1 text-xs font-extrabold uppercase tracking-wide border bg-rose-50 border-rose-200 text-rose-700 dark:bg-rose-950/40 dark:border-rose-800 dark:text-rose-400"
                 >
                   {selectedConflict.severity} Severity
                 </span>
@@ -436,28 +431,28 @@ export default function UndergroundConflictMap() {
               <div className="space-y-6">
                 {/* 1. Involved Work Orders & Date Gap */}
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between text-xs text-slate-400">
+                  <div className="flex items-center justify-between text-xs text-[#5A5A5A] dark:text-slate-400">
                     <span className="font-semibold uppercase tracking-wider">Involved Corridor Polygons</span>
-                    <span className="font-mono text-slate-300">
-                      Date Gap: <strong className="text-amber-400 font-bold">{selectedConflict.dateGapDays} Days</strong>
+                    <span className="font-mono text-[#5A5A5A] dark:text-slate-300">
+                      Date Gap: <strong className="text-amber-700 dark:text-amber-400 font-bold">{selectedConflict.dateGapDays} Days</strong>
                     </span>
                   </div>
 
                   <div className="grid gap-3">
                     {/* Order A (Cyan) */}
-                    <div className="rounded-xl border border-slate-800 bg-slate-950/80 p-3.5 flex items-start gap-3">
+                    <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-[#F8F6F0] dark:bg-slate-950/80 p-3.5 flex items-start gap-3">
                       <div
                         className="mt-1 h-3 w-3 rounded-full shrink-0"
                         style={{ backgroundColor: DEPARTMENTS[selectedConflict.deptA]?.color || '#06B6D4' }}
                       />
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between">
-                          <p className="text-xs font-bold text-white truncate">{selectedConflict.titleA}</p>
-                          <span className="text-[10px] uppercase font-bold text-cyan-400 bg-cyan-950/80 border border-cyan-800 px-2 py-0.5 rounded">
+                        <div className="flex items-center justify-between gap-2">
+                          <p className="text-xs font-bold text-[#1C1C1C] dark:text-white truncate">{selectedConflict.titleA}</p>
+                          <span className="text-[10px] uppercase font-bold text-cyan-800 bg-cyan-50 border border-cyan-300 dark:text-cyan-400 dark:bg-cyan-950/80 dark:border-cyan-800 px-2 py-0.5 rounded">
                             {selectedConflict.deptA}
                           </span>
                         </div>
-                        <p className="text-[11px] text-slate-400 mt-1 flex items-center gap-1 font-mono">
+                        <p className="text-[11px] text-[#5A5A5A] dark:text-slate-400 mt-1 flex items-center gap-1 font-mono">
                           <Calendar className="h-3 w-3 text-slate-500" />
                           2026-08-15 to 2026-08-28
                         </p>
@@ -465,19 +460,19 @@ export default function UndergroundConflictMap() {
                     </div>
 
                     {/* Order B (Magenta) */}
-                    <div className="rounded-xl border border-slate-800 bg-slate-950/80 p-3.5 flex items-start gap-3">
+                    <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-[#F8F6F0] dark:bg-slate-950/80 p-3.5 flex items-start gap-3">
                       <div
                         className="mt-1 h-3 w-3 rounded-full shrink-0"
                         style={{ backgroundColor: DEPARTMENTS[selectedConflict.deptB]?.color || '#EC4899' }}
                       />
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between">
-                          <p className="text-xs font-bold text-white truncate">{selectedConflict.titleB}</p>
-                          <span className="text-[10px] uppercase font-bold text-pink-400 bg-pink-950/80 border border-pink-800 px-2 py-0.5 rounded">
+                        <div className="flex items-center justify-between gap-2">
+                          <p className="text-xs font-bold text-[#1C1C1C] dark:text-white truncate">{selectedConflict.titleB}</p>
+                          <span className="text-[10px] uppercase font-bold text-pink-800 bg-pink-50 border border-pink-300 dark:text-pink-400 dark:bg-pink-950/80 dark:border-pink-800 px-2 py-0.5 rounded">
                             {selectedConflict.deptB}
                           </span>
                         </div>
-                        <p className="text-[11px] text-slate-400 mt-1 flex items-center gap-1 font-mono">
+                        <p className="text-[11px] text-[#5A5A5A] dark:text-slate-400 mt-1 flex items-center gap-1 font-mono">
                           <Calendar className="h-3 w-3 text-slate-500" />
                           2026-08-18 to 2026-09-05
                         </p>
@@ -487,19 +482,19 @@ export default function UndergroundConflictMap() {
                 </div>
 
                 {/* 2. Unified Trenching Window Recommendation */}
-                <div className="rounded-2xl border border-indigo-500/30 bg-indigo-950/30 p-4 space-y-3">
-                  <div className="flex items-center gap-2 text-xs font-bold text-indigo-300">
-                    <Sparkles className="h-4 w-4 text-indigo-400" />
+                <div className="rounded-2xl border border-[#2B2653]/15 dark:border-indigo-500/30 bg-[#2B2653]/5 dark:bg-indigo-950/30 p-4 space-y-3">
+                  <div className="flex items-center gap-2 text-xs font-bold text-[#2B2653] dark:text-indigo-300">
+                    <Sparkles className="h-4 w-4 text-[#2B2653] dark:text-indigo-400" />
                     <span>AI Recommendation: Unified Trenching Window</span>
                   </div>
 
-                  <p className="text-xs text-slate-300 leading-relaxed">
+                  <p className="text-xs text-[#5A5A5A] dark:text-slate-300 leading-relaxed">
                     Merge work schedules into a single trench excavation window to prevent digging the road twice and save municipal expenditure.
                   </p>
 
-                  <div className="rounded-xl bg-slate-950/90 border border-slate-800 p-3 flex items-center justify-between font-mono text-xs">
-                    <span className="text-slate-400">Proposed Window:</span>
-                    <span className="text-emerald-400 font-bold">
+                  <div className="rounded-xl bg-white dark:bg-slate-950/90 border border-[#2B2653]/10 dark:border-slate-800 p-3 flex items-center justify-between font-mono text-xs">
+                    <span className="text-[#5A5A5A] dark:text-slate-400 font-sans">Proposed Window:</span>
+                    <span className="text-emerald-700 dark:text-emerald-400 font-bold">
                       {selectedConflict.unifiedWindow.start} → {selectedConflict.unifiedWindow.end}
                     </span>
                   </div>
@@ -509,7 +504,7 @@ export default function UndergroundConflictMap() {
                     disabled={selectedConflict.approved}
                     className={`w-full py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition shadow-lg ${
                       selectedConflict.approved
-                        ? 'bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 cursor-default'
+                        ? 'bg-emerald-500/20 text-emerald-800 dark:text-emerald-400 border border-emerald-500/30 cursor-default'
                         : 'bg-indigo-600 text-white hover:bg-indigo-500 shadow-indigo-600/30'
                     }`}
                   >
@@ -527,11 +522,11 @@ export default function UndergroundConflictMap() {
               </div>
             ) : (
               <div className="py-10 px-4 text-center space-y-3">
-                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl border border-indigo-500/20 bg-indigo-500/10 text-indigo-400">
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl border border-indigo-500/20 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">
                   <MapPin className="h-6 w-6" />
                 </div>
-                <h4 className="text-sm font-bold text-white">No Active Conflict Selected</h4>
-                <p className="text-xs text-slate-400 max-w-xs mx-auto leading-relaxed">
+                <h4 className="text-sm font-bold text-[#1C1C1C] dark:text-white">No Active Conflict Selected</h4>
+                <p className="text-xs text-[#5A5A5A] dark:text-slate-400 max-w-xs mx-auto leading-relaxed">
                   Click on the <strong>Red Intersection Dot Pin</strong> or corridor polygons on the map to review details.
                 </p>
                 <button
@@ -545,8 +540,8 @@ export default function UndergroundConflictMap() {
           </div>
 
           {/* ALL CONFLICTS QUICK LIST */}
-          <div className="rounded-[24px] border border-slate-800 bg-slate-900/90 p-5 text-slate-200 space-y-3">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">Flagged Overlaps ({conflicts.length})</h4>
+          <div className="rounded-[24px] border border-[#2B2653]/10 dark:border-slate-800 bg-white dark:bg-slate-900/90 p-5 text-[#1C1C1C] dark:text-slate-200 space-y-3 shadow-sm">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-[#5A5A5A] dark:text-slate-400">Flagged Overlaps ({conflicts.length})</h4>
             <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
               {conflicts.map((c) => {
                 const isSelected = selectedConflict?.id === c.id;
@@ -561,21 +556,21 @@ export default function UndergroundConflictMap() {
                     }}
                     className={`w-full text-left p-3 rounded-xl border text-xs transition flex items-center justify-between ${
                       isSelected
-                        ? 'border-indigo-500 bg-indigo-500/10 text-white'
-                        : 'border-slate-800 bg-slate-950/60 text-slate-300 hover:bg-slate-800/50'
+                        ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 text-[#1C1C1C] dark:text-white font-bold'
+                        : 'border-slate-200 dark:border-slate-800 bg-[#F8F6F0] dark:bg-slate-950/60 text-[#5A5A5A] dark:text-slate-300 hover:bg-slate-200/60 dark:hover:bg-slate-800/50'
                     }`}
                   >
                     <div>
-                      <div className="font-bold flex items-center gap-2">
+                      <div className="font-bold flex items-center gap-2 text-[#1C1C1C] dark:text-white">
                         <span className="h-2 w-2 rounded-full" style={{ backgroundColor: c.color }} />
                         {c.titleA} × {c.titleB}
                       </div>
-                      <p className="text-[11px] text-slate-400 mt-1">
+                      <p className="text-[11px] text-[#5A5A5A] dark:text-slate-400 mt-1">
                         {c.deptA.toUpperCase()} & {c.deptB.toUpperCase()} • Gap: {c.dateGapDays}d
                       </p>
                     </div>
                     {c.approved && (
-                      <span className="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded font-bold">
+                      <span className="text-[10px] bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 px-2 py-0.5 rounded font-bold">
                         Approved
                       </span>
                     )}
@@ -589,35 +584,35 @@ export default function UndergroundConflictMap() {
 
       {/* SIMULATE CORRIDOR MODAL */}
       {simulationModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4">
-          <div className="w-full max-w-md rounded-2xl border border-slate-800 bg-slate-900 p-6 text-slate-200 space-y-4 shadow-2xl">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-              <h3 className="text-base font-bold text-white flex items-center gap-2">
-                <Plus className="h-5 w-5 text-indigo-400" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="w-full max-w-md rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 text-[#1C1C1C] dark:text-slate-200 space-y-4 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+              <h3 className="text-base font-bold text-[#1C1C1C] dark:text-white flex items-center gap-2">
+                <Plus className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
                 Simulate New Corridor
               </h3>
-              <button onClick={() => setSimulationModal(false)} className="text-slate-400 hover:text-white text-xs font-bold">
+              <button onClick={() => setSimulationModal(false)} className="text-slate-400 hover:text-black dark:hover:text-white text-xs font-bold">
                 ✕
               </button>
             </div>
 
             <div className="space-y-3 text-xs">
               <div>
-                <label className="block text-slate-400 mb-1 font-semibold">Corridor Title</label>
+                <label className="block text-[#5A5A5A] dark:text-slate-400 mb-1 font-semibold">Corridor Title</label>
                 <input
                   type="text"
                   value={simTitle}
                   onChange={(e) => setSimTitle(e.target.value)}
-                  className="w-full rounded-xl border border-slate-800 bg-slate-950 px-3 py-2 text-white outline-none focus:border-indigo-500"
+                  className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-[#F8F6F0] dark:bg-slate-950 px-3 py-2 text-[#1C1C1C] dark:text-white outline-none focus:border-indigo-500"
                 />
               </div>
 
               <div>
-                <label className="block text-slate-400 mb-1 font-semibold">Department</label>
+                <label className="block text-[#5A5A5A] dark:text-slate-400 mb-1 font-semibold">Department</label>
                 <select
                   value={simDept}
                   onChange={(e) => setSimDept(e.target.value)}
-                  className="w-full rounded-xl border border-slate-800 bg-slate-950 px-3 py-2 text-white outline-none focus:border-indigo-500"
+                  className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-[#F8F6F0] dark:bg-slate-950 px-3 py-2 text-[#1C1C1C] dark:text-white outline-none focus:border-indigo-500"
                 >
                   <option value="roads">Roads (White)</option>
                   <option value="water">Water (Cyan)</option>
@@ -627,10 +622,10 @@ export default function UndergroundConflictMap() {
               </div>
             </div>
 
-            <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-800">
+            <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-200 dark:border-slate-800">
               <button
                 onClick={() => setSimulationModal(false)}
-                className="px-4 py-2 text-xs text-slate-400 hover:text-white font-semibold"
+                className="px-4 py-2 text-xs text-[#5A5A5A] dark:text-slate-400 hover:text-black dark:hover:text-white font-semibold"
               >
                 Cancel
               </button>
