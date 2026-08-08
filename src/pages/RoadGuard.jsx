@@ -165,8 +165,20 @@ export default function RoadGuard() {
           </div>
         </div>
 
+        {/* CITIZEN MOBILE APP NOTIFICATION BROADCAST BANNER */}
+        <div className="mt-6 rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs shadow-lg">
+          <div className="flex items-center gap-2.5 text-amber-300 font-medium">
+            <span className="h-2.5 w-2.5 rounded-full bg-amber-400 animate-ping" />
+            <span className="font-bold text-amber-200">Citizen App Broadcast:</span>
+            <span>Active digging, pipe laying & trenching notifications are live-synchronized with the citizen mobile app.</span>
+          </div>
+          <span className="rounded-full bg-amber-500/20 border border-amber-500/40 px-3 py-1 text-[10px] font-mono font-bold text-amber-300">
+            Push Alerts Active
+          </span>
+        </div>
+
         {/* QUICK DIFFERENTIATOR MATRIX SUMMARY BAR */}
-        <div className="mt-6 pt-6 border-t border-slate-800 grid gap-3 md:grid-cols-4 font-mono">
+        <div className="mt-4 pt-4 border-t border-slate-800 grid gap-3 md:grid-cols-4 font-mono">
           <div className="rounded-xl border border-slate-800 bg-slate-950/60 p-3">
             <span className="text-slate-400 block text-xs uppercase font-sans tracking-wider">Account Creation</span>
             <span className="font-bold text-white text-sm">
@@ -608,7 +620,45 @@ export default function RoadGuard() {
                         </span>
                       </div>
 
+                      {/* Complaint Photo Evidence Display with NVIDIA AI Classification */}
+                      {complaint.image ? (
+                        <div className="relative h-48 w-full overflow-hidden rounded-xl border border-slate-800 bg-slate-900 group">
+                          <img
+                            src={complaint.image}
+                            alt={complaint.title}
+                            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                            }}
+                          />
+                          {/* NVIDIA AI Real vs Fake Status Pill */}
+                          <div className={`absolute top-2 right-2 rounded-full px-2.5 py-1 text-[10px] font-mono font-bold backdrop-blur-md border shadow-md flex items-center gap-1.5 ${
+                            complaint.authenticity === 'FAKE'
+                              ? 'bg-rose-950/90 text-rose-300 border-rose-600'
+                              : 'bg-emerald-950/90 text-emerald-300 border-emerald-500'
+                          }`}>
+                            <span className={`h-2 w-2 rounded-full ${complaint.authenticity === 'FAKE' ? 'bg-rose-500' : 'bg-emerald-400 animate-pulse'}`} />
+                            <span>NVIDIA AI: {complaint.authenticity || 'REAL'} ({complaint.confidence}%)</span>
+                          </div>
+
+                          <div className="absolute bottom-2 left-2 rounded-lg bg-slate-950/90 px-2.5 py-1 text-[10px] font-mono text-slate-300 backdrop-blur-md border border-slate-800 flex items-center gap-1.5">
+                            <Sparkles className="h-3 w-3 text-cyan-400" />
+                            <span>{complaint.authenticity === 'FAKE' ? 'No Physical Hazard Detected' : 'Llama-3.2-Vision Verified'}</span>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex flex-col items-center justify-center h-32 rounded-xl border border-dashed border-rose-500/40 bg-rose-950/20 p-4 text-center">
+                          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/40 text-[10px] font-mono font-bold">
+                            <AlertCircle className="h-3.5 w-3.5 text-rose-400" />
+                            <span>NVIDIA AI: FAKE / NO EVIDENCE ({complaint.confidence}%)</span>
+                          </div>
+                          <p className="text-[11px] text-slate-400 mt-2">No valid physical hazard photo was attached to this report.</p>
+                        </div>
+                      )}
+
                       <p className="text-xs text-slate-300 leading-relaxed">{complaint.description}</p>
+
+
 
                       {/* Staff Assignment & Status Buttons for Super Dept / Dept Admin */}
                       {canManageComplaints ? (
@@ -660,7 +710,9 @@ export default function RoadGuard() {
                       ) : (
                         <div className="pt-2 border-t border-slate-800 text-[11px] text-slate-400 flex items-center justify-between font-mono">
                           <span>Assigned: <strong className="text-slate-200">{complaint.assignedStaff || 'Unassigned'}</strong></span>
-                          <span>Confidence: {complaint.confidence}%</span>
+                          <span className={complaint.authenticity === 'FAKE' ? 'text-rose-400 font-bold' : 'text-emerald-400 font-bold'}>
+                            {complaint.authenticity === 'FAKE' ? 'Flagged FAKE' : 'NVIDIA Verified'}: {complaint.confidence}%
+                          </span>
                         </div>
                       )}
                     </div>

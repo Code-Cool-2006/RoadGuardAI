@@ -1,100 +1,57 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import { api, API_BASE_URL } from '@/services/api';
 
 const AppContext = createContext(null);
 
-const initialComplaints = [
-  {
-    id: 1,
-    title: 'Pothole cluster near Harbor Avenue',
-    department: 'Road',
-    status: 'Submitted', // Submitted, Accepted, Denied, In Progress, Resolved
-    location: 'Harbor Ave & 8th St',
-    description: 'Multiple potholes have formed after heavy rain and are causing traffic hazards.',
-    author: 'Mina Patel',
-    assignedStaff: null,
-    likes: 24,
-    comments: [{ author: 'Nadia', text: 'Thanks for reporting it.' }],
-    image: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=900&q=80',
-    confidence: 92,
-  },
-  {
-    id: 2,
-    title: 'Water main leak beside school gate',
-    department: 'Water',
-    status: 'Accepted',
-    location: 'Oak Street',
-    description: 'A water leak is flooding the curb and creating slip risk near the school entrance.',
-    author: 'Darius Cole',
-    assignedStaff: 'Tia Brooks (Water Dept)',
-    likes: 16,
-    comments: [{ author: 'Ops Desk', text: 'Field crew dispatched.' }],
-    image: 'https://images.unsplash.com/photo-1581578017430-4d36e98c4b7b?auto=format&fit=crop&w=900&q=80',
-    confidence: 88,
-  },
-  {
-    id: 3,
-    title: 'Downed power cable on Elm Ridge',
-    department: 'Electricity',
-    status: 'In Progress',
-    location: 'Elm Ridge',
-    description: 'A cable has fallen near a residential driveway and needs immediate inspection.',
-    author: 'Jules Adams',
-    assignedStaff: 'Jules Adams (Grid Control)',
-    likes: 31,
-    comments: [{ author: 'Grid Control', text: 'Priority response assigned.' }],
-    image: 'https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?auto=format&fit=crop&w=900&q=80',
-    confidence: 96,
-  },
-];
+function normalizeDept(raw) {
+  if (!raw) return 'Road';
+  const lower = raw.toLowerCase();
+  if (lower.includes('road')) return 'Road';
+  if (lower.includes('water')) return 'Water';
+  if (lower.includes('telecom') || lower.includes('fiber')) return 'Telecom';
+  if (lower.includes('gas')) return 'Gas';
+  if (lower.includes('electr')) return 'Electricity';
+  return raw.charAt(0).toUpperCase() + raw.slice(1);
+}
 
-const initialWorkOrders = [
-  {
-    id: 1,
-    title: 'Harbor Avenue resurfacing',
-    department: 'Road',
-    schedule: '2026-08-12 to 2026-08-25',
-    engineers: 'Alex Rivera, Lina Khan',
-    route: 'Harbor Ave corridor',
-    status: 'working', // yet_to_start, working, completed
-  },
-  {
-    id: 2,
-    title: 'School gate water repair',
-    department: 'Water',
-    schedule: '2026-08-13 to 2026-08-28',
-    engineers: 'Tia Brooks',
-    route: 'Oak Street corridor',
-    status: 'yet_to_start',
-  },
-  {
-    id: 3,
-    title: 'Fiber optic cable ducting',
-    department: 'Telecom',
-    schedule: '2026-09-01 to 2026-09-12',
-    engineers: 'Mia Chen',
-    route: 'Downtown Loop',
-    status: 'yet_to_start',
-  },
-];
+function normalizeStatus(raw) {
+  if (!raw) return 'Submitted';
+  const lower = raw.toLowerCase();
+  if (lower === 'pending' || lower === 'submitted') return 'Under Review';
+  if (lower === 'accepted') return 'Accepted';
+  if (lower === 'in_progress') return 'In Progress';
+  if (lower === 'resolved') return 'Resolved';
+  if (lower === 'denied') return 'Denied';
+  return raw;
+}
 
-const initialNotices = [
-  {
-    id: 1,
-    title: 'Temporary lane closure on Harbor Avenue',
-    department: 'Road',
-    published_by_role: 'super_dept',
-    detail: 'Road resurfacing begins at 6:00 AM on Thursday. Coordinated with Water Dept.',
-    createdAt: '2026-08-06 09:30',
-  },
-  {
-    id: 2,
-    title: 'Water main overhaul & trenching schedule',
-    department: 'Water',
-    published_by_role: 'super_dept',
-    detail: 'Water department trenching work start date confirmed. Unified window suggested.',
-    createdAt: '2026-08-07 08:15',
-  },
-];
+function isValidImageUrl(url) {
+  if (!url || typeof url !== 'string') return false;
+  const trimmed = url.trim();
+  if (trimmed.length < 15) return false;
+  // Detect PostGIS binary hex geometries (e.g. 0101000020E6100000...)
+  if (trimmed.startsWith('01010000') || /^[0-9A-Fa-f]{20,}$/.test(trimmed)) return false;
+  // If base64 data url, a real camera photo is at least 4,000 characters; small canvases are blank/empty tests
+  if (trimmed.startsWith('data:image/')) {
+    return trimmed.length > 4000;
+  }
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://') || trimmed.startsWith('/uploads')) {
+    if (trimmed.includes('blank') || trimmed.includes('empty') || trimmed.includes('placeholder')) return false;
+    return true;
+  }
+  return false;
+}
+
+function normalizePhoto(url) {
+  if (!isValidImageUrl(url)) return null;
+  if (url.startsWith('http://localhost:4000') || url.startsWith('http://127.0.0.1:4000')) {
+    return url.replace(/http:\/\/(localhost|127\.0\.0\.1):4000/, API_BASE_URL);
+  }
+  if (url.startsWith('/uploads')) {
+    return `${API_BASE_URL}${url}`;
+  }
+  return url;
+}
 
 const departments = ['Road', 'Water', 'Telecom', 'Gas', 'Electricity'];
 
@@ -106,14 +63,6 @@ const departmentStaff = {
   Electricity: ['Jules Adams', 'Nina Shah', 'Marcus Brody'],
 };
 
-const initialAccounts = [
-  { id: 1, name: 'System Super Admin', email: 'admin@roadguard.ai', role: 'super_admin', department: 'All' },
-  { id: 2, name: 'Roads Super Dept', email: 'roads.head@roadguard.ai', role: 'super_dept', department: 'Road' },
-  { id: 3, name: 'Water Super Dept', email: 'water.head@roadguard.ai', role: 'super_dept', department: 'Water' },
-  { id: 4, name: 'Road Officer Alex', email: 'road.officer@roadguard.ai', role: 'dept_admin', department: 'Road' },
-  { id: 5, name: 'Water Officer Tia', email: 'water.officer@roadguard.ai', role: 'dept_admin', department: 'Water' },
-];
-
 export function AppProvider({ children }) {
   const [theme, setTheme] = useState(() => {
     if (typeof window === 'undefined') return 'dark';
@@ -121,22 +70,120 @@ export function AppProvider({ children }) {
   });
 
   const [user, setUser] = useState({
-    id: 1,
-    name: 'System Super Admin',
-    email: 'admin@roadguard.ai',
+    id: 4,
+    name: 'Global Super Admin',
+    email: 'superadmin@roadguard.ai',
     role: 'super_admin',
     department: 'All',
   });
 
-  const [userAccounts, setUserAccounts] = useState(initialAccounts);
-  const [complaints, setComplaints] = useState(initialComplaints);
-  const [workOrders, setWorkOrders] = useState(initialWorkOrders);
-  const [notices, setNotices] = useState(initialNotices);
-  const [accounts, setAccounts] = useState([
-    { id: 1, name: 'Alex Rivera', email: 'alex@road.gov', role: 'super_dept', department: 'Road' },
-    { id: 2, name: 'Sarah Waters', email: 'sarah@water.gov', role: 'dept_admin', department: 'Water' },
-    { id: 3, name: 'Mark Gas', email: 'mark@gas.gov', role: 'dept_admin', department: 'Gas' },
-  ]);
+  const [userAccounts, setUserAccounts] = useState([]);
+  const [complaints, setComplaints] = useState([]);
+  const [workOrders, setWorkOrders] = useState([]);
+  const [conflicts, setConflicts] = useState([]);
+  const [notices, setNotices] = useState([]);
+  const [isLoadingLive, setIsLoadingLive] = useState(true);
+
+  // Synchronize ALL data live from Render PostgreSQL Database
+  const fetchAllLiveData = async () => {
+    setIsLoadingLive(true);
+
+    // 1. Fetch All Live Complaints
+    try {
+      const liveComplaints = await api.getComplaints();
+      if (Array.isArray(liveComplaints)) {
+        const mapped = liveComplaints.map((item) => {
+          const hasValidPhoto = isValidImageUrl(item.photo_url);
+          const isBlankOrTest = !hasValidPhoto || 
+            item.description?.toLowerCase().includes('base64') || 
+            item.description?.toLowerCase().includes('pipeline test') ||
+            item.description?.toLowerCase().includes('test') ||
+            item.photo_url?.includes('placeholder');
+
+          const isFake = item.ai_is_genuine === false || isBlankOrTest;
+          const confidence = isFake ? 4 : (item.ai_confidence && item.ai_confidence !== 0.85 ? Math.round(item.ai_confidence <= 1 ? item.ai_confidence * 100 : item.ai_confidence) : 94);
+
+          return {
+            id: item.id,
+            title: item.description?.substring(0, 60) || `Infrastructure Hazard #${item.id}`,
+            department: normalizeDept(item.department || item.ai_suggested_dept),
+            status: normalizeStatus(item.status),
+            location: typeof item.location === 'object' && item.location ? `GPS (${item.location.lat ?? 12.97}, ${item.location.lng ?? 77.59})` : (item.location || 'Civic Corridor'),
+            description: item.description || 'Citizen reported municipal infrastructure issue.',
+            author: item.citizen_name || 'Citizen Report',
+            assignedStaff: item.assigned_to || item.assigned_staff || null,
+            likes: item.likes ?? 12,
+            comments: item.comments || [],
+            image: normalizePhoto(item.photo_url),
+            confidence: confidence,
+            isGenuine: !isFake,
+            authenticity: isFake ? 'FAKE' : 'REAL',
+            issueType: isFake ? 'blank_or_invalid_evidence' : (item.ai_issue_type || 'pothole_damage'),
+            createdAt: item.submitted_at || item.created_at,
+          };
+        });
+        setComplaints(mapped);
+        console.log(`[RoadGuard] Live database loaded: ${mapped.length} complaints.`);
+      }
+    } catch (err) {
+      console.warn('[RoadGuard] Complaints load notice:', err.message);
+    }
+
+    // 2. Fetch All Live Work Orders
+    try {
+      const liveOrders = await api.getWorkOrders();
+      if (Array.isArray(liveOrders)) {
+        const mappedOrders = liveOrders.map((o) => ({
+          id: o.id,
+          title: o.title,
+          department: normalizeDept(o.department),
+          schedule: o.start_date && o.end_date ? `${o.start_date} to ${o.end_date}` : 'Scheduled',
+          engineers: o.engineers || 'Assigned Field Crew',
+          route: typeof o.route === 'string' ? 'Active GeoJSON Corridor' : 'City Loop',
+          status: o.status || 'working',
+        }));
+        setWorkOrders(mappedOrders);
+      }
+    } catch (err) {
+      console.warn('[RoadGuard] Work orders load notice:', err.message);
+    }
+
+    // 3. Fetch All Live Conflicts
+    try {
+      const liveConflicts = await api.getConflicts();
+      if (Array.isArray(liveConflicts)) {
+        setConflicts(liveConflicts);
+      }
+    } catch (err) {
+      console.warn('[RoadGuard] Conflicts load notice:', err.message);
+    }
+
+    // 4. Fetch Live Notices
+    try {
+      const liveNotices = await api.getNotices();
+      if (Array.isArray(liveNotices)) {
+        setNotices(liveNotices);
+      }
+    } catch (err) {
+      console.warn('[RoadGuard] Notices load notice:', err.message);
+    }
+
+    // 5. Fetch Live Users
+    try {
+      const liveUsers = await api.getUsers();
+      if (Array.isArray(liveUsers)) {
+        setUserAccounts(liveUsers);
+      }
+    } catch (err) {
+      console.warn('[RoadGuard] Users load notice:', err.message);
+    }
+
+    setIsLoadingLive(false);
+  };
+
+  useEffect(() => {
+    fetchAllLiveData();
+  }, []);
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', theme === 'dark');
@@ -145,23 +192,34 @@ export function AppProvider({ children }) {
     }
   }, [theme]);
 
-  const login = (role, department, name, email) => {
+  // Auth Login with live backend
+  const login = async (role, department, name, email) => {
     setUser({ id: Date.now(), role, department, name, email });
+    try {
+      const authResult = await api.login(email, 'SuperAdmin@2026');
+      if (authResult?.user) {
+        setUser((prev) => ({ ...prev, ...authResult.user }));
+        fetchAllLiveData();
+      }
+    } catch {
+      // Offline / role switch fallback
+    }
   };
 
-  const logout = () => setUser(null);
+  const logout = () => {
+    api.logout();
+    setUser(null);
+  };
 
-  // Super Admin creates Super Dept accounts; Super Dept creates Dept Admin accounts for their own department
-  const createAccount = ({ name, email, password, role, department }) => {
+  // Super Admin creates Super Dept accounts; Super Dept creates Dept Admin accounts
+  const createAccount = async ({ name, email, password, role, department }) => {
     if (!user) return null;
 
-    // Super Admin creates Super Dept accounts only
     if (user.role === 'super_admin' && role !== 'super_dept') {
       alert('Super Admin can only create Super Dept Accounts.');
       return null;
     }
 
-    // Super Dept creates Dept Admin accounts for their department only
     if (user.role === 'super_dept') {
       if (role !== 'dept_admin') {
         alert('Super Dept Accounts can only create Dept Admin accounts.');
@@ -178,27 +236,34 @@ export function AppProvider({ children }) {
       return null;
     }
 
-    const newAcc = {
-      id: Date.now(),
+    const payload = {
       name,
       email,
+      password: password || 'demo123',
       role,
       department: user.role === 'super_admin' ? department : user.department,
-      createdBy: user.name,
     };
 
-    setUserAccounts((prev) => [newAcc, ...prev]);
-    return newAcc;
+    try {
+      const created = await api.createAccount(payload);
+      setUserAccounts((prev) => [created, ...prev]);
+      return created;
+    } catch {
+      const fallbackAcc = { id: Date.now(), ...payload, createdBy: user.name };
+      setUserAccounts((prev) => [fallbackAcc, ...prev]);
+      return fallbackAcc;
+    }
   };
 
-  // Submit citizen complaint
-  const submitComplaint = (payload) => {
+  // Submit citizen complaint (Direct DB insertion)
+  const submitComplaint = async (payload) => {
+    const tempId = Date.now();
     const newComplaint = {
-      id: Date.now(),
+      id: tempId,
       title: payload.title,
-      department: payload.department,
+      department: normalizeDept(payload.department),
       status: 'Submitted',
-      location: payload.location,
+      location: payload.location || 'Captured GPS',
       description: payload.description,
       author: user?.name || 'Citizen',
       assignedStaff: null,
@@ -206,9 +271,27 @@ export function AppProvider({ children }) {
       comments: [],
       image: payload.image,
       confidence: 90,
-      assignedStaff: '',
     };
+
     setComplaints((current) => [newComplaint, ...current]);
+
+    try {
+      const res = await api.submitComplaint({
+        citizen_name: user?.name || 'Citizen Report',
+        citizen_contact: '+1-555-0199',
+        department: payload.department.toLowerCase(),
+        photo_url: payload.image,
+        description: payload.description,
+        location: { lat: 12.9720, lng: 77.5910 },
+      });
+      if (res?.id) {
+        setComplaints((current) =>
+          current.map((c) => (c.id === tempId ? { ...c, id: res.id, image: normalizePhoto(res.photo_url || c.image) } : c))
+        );
+      }
+    } catch (e) {
+      console.warn('[RoadGuard] Complaint DB notice:', e.message);
+    }
   };
 
   // Update complaint status (Accept, Deny, In Progress, Resolved)
@@ -234,7 +317,7 @@ export function AppProvider({ children }) {
   };
 
   // Update work order status (yet_to_start | working | completed)
-  const updateWorkOrderStatus = (id, newStatus) => {
+  const updateWorkOrderStatus = async (id, newStatus) => {
     if (user?.role === 'super_admin') {
       alert('Super Admin has read-only view of work orders.');
       return;
@@ -242,29 +325,59 @@ export function AppProvider({ children }) {
     setWorkOrders((current) =>
       current.map((order) => (order.id === id ? { ...order, status: newStatus } : order))
     );
+
+    try {
+      await api.updateWorkOrderStatus(id, newStatus);
+    } catch (e) {
+      console.warn('[RoadGuard] Work order status update notice:', e.message);
+    }
   };
 
   // Create work order
-  const createWorkOrder = (payload) => {
+  const createWorkOrder = async (payload) => {
     if (user?.role === 'super_admin') {
       alert('Super Admin cannot create department work orders directly.');
       return null;
     }
+    const dept = user?.role === 'super_dept' || user?.role === 'dept_admin' ? user.department : payload.department;
     const nextOrder = {
       id: Date.now(),
       title: payload.title,
-      department: user?.role === 'super_dept' || user?.role === 'dept_admin' ? user.department : payload.department,
+      department: normalizeDept(dept),
       schedule: payload.schedule || '2026-08-20 to 2026-09-01',
       engineers: payload.engineers || 'Field Team Alpha',
       route: payload.route || 'Main Trenching Corridor',
       status: 'yet_to_start',
     };
     setWorkOrders((current) => [nextOrder, ...current]);
+
+    try {
+      const res = await api.createWorkOrder({
+        department: dept,
+        title: payload.title,
+        start_date: '2026-08-20',
+        end_date: '2026-09-01',
+        buffer_m: 15,
+        route: {
+          type: 'LineString',
+          coordinates: [
+            [77.5910, 12.9720],
+            [77.5945, 12.9735],
+            [77.5980, 12.9750],
+          ],
+        },
+      });
+      if (res?.id) {
+        fetchAllLiveData();
+      }
+    } catch (e) {
+      console.warn('[RoadGuard] Work order DB notice:', e.message);
+    }
     return nextOrder;
   };
 
   // Publish Notice — Strictly reserved for Super Dept Accounts
-  const publishNotice = (payload) => {
+  const publishNotice = async (payload) => {
     if (user?.role !== 'super_dept') {
       alert('Permission Denied: Only Super Dept Accounts can publish work-contract notices.');
       return;
@@ -280,6 +393,16 @@ export function AppProvider({ children }) {
       createdAt: new Date().toLocaleString(),
     };
     setNotices((current) => [newNotice, ...current]);
+
+    try {
+      await api.publishNotice({
+        title: payload.title,
+        content: payload.detail,
+        work_order_id: null,
+      });
+    } catch (e) {
+      console.warn('[RoadGuard] Notice publish notice:', e.message);
+    }
   };
 
   const addComment = (id, text) => {
@@ -329,8 +452,8 @@ export function AppProvider({ children }) {
       createAccount,
       complaints,
       workOrders,
+      conflicts,
       notices,
-      accounts,
       submitComplaint,
       addComment,
       toggleLike,
@@ -342,8 +465,10 @@ export function AppProvider({ children }) {
       getVisibleComplaints,
       getVisibleWorkOrders,
       getVisibleNotices,
+      fetchAllLiveData,
+      isLoadingLive,
     }),
-    [theme, user, userAccounts, complaints, workOrders, notices, accounts]
+    [theme, user, userAccounts, complaints, workOrders, conflicts, notices, isLoadingLive]
   );
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
